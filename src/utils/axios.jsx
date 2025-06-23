@@ -1,9 +1,14 @@
-// src/utils/axios.js
+
 import axios from 'axios';
 
+const isLocal = process.env.NODE_ENV === 'development';
+
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000',  
-  withCredentials: true,             
+  baseURL: isLocal
+    ? 'http://localhost:3000'
+    : 'https://quickzy-backend.onrender.com',
+
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
