@@ -5,8 +5,12 @@ const isLocal = process.env.NODE_ENV === 'development';
 
 const axiosInstance = axios.create({
   baseURL: isLocal
+
+
     ? 'http://localhost:3000'
     : 'https://quickzy-backend.onrender.com',
+
+ // render url
 
   withCredentials: true,
   headers: {
