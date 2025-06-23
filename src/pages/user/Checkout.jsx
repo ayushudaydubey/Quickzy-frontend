@@ -116,7 +116,9 @@ const Checkout = () => {
             <p><strong>Name:</strong> {user.username}</p>
             <p><strong>Phone:</strong> {user.mobile}</p>
             <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Address:</strong> {user.address}</p>
+            <p><strong>Address:</strong> {`${user.address}, ${user.city}, ${user.state} ${user.zipCode}`}</p>
+
+              
           </div>
         </div>
 
