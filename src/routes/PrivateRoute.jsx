@@ -6,19 +6,29 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
   const [isAllowed, setIsAllowed] = useState(null);
 
   useEffect(() => {
-    axiosInstance.get('/me', { withCredentials: true })
-      .then(res => {
-        if (adminOnly && !res.data?.admin) {
+    const checkAccess = async () => {
+      try {
+        const res = await axiosInstance.get('/me', { withCredentials: true });
+        const user = res.data;
+
+        if (adminOnly && !user.admin) {
           setIsAllowed(false);
         } else {
           setIsAllowed(true);
         }
-      })
-      .catch(() => setIsAllowed(false));
+      } catch (err) {
+        setIsAllowed(false);
+      }
+    };
+
+    checkAccess();
   }, [adminOnly]);
 
-  if (isAllowed === null) return <p className="text-center mt-10">Checking access...</p>;
-  return isAllowed ? children : <Navigate to="/login" />;
+  if (isAllowed === null) {
+    return <p className="text-center mt-10">Checking access...</p>;
+  }
+
+  return isAllowed ? children : <Navigate to="/login" replace />;
 };
 
 export default PrivateRoute;
