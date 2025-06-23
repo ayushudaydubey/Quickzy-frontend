@@ -6,7 +6,7 @@ const isLocal = import.meta.env.MODE === 'development';
 const axiosInstance = axios.create({
   baseURL: isLocal
     ? 'http://localhost:3000'
-    : 'https://quickzy-backend.onrender.com', // Render URL
+    : 'https://quickzy-backend.onrender.com', // Render URL new 
 
   withCredentials: true,
   headers: {
