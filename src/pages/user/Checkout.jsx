@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from '../../utils/axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import RazorpayButton from '../../components/RazorpayButton';
 
 const Checkout = () => {
   const { id } = useParams();
@@ -35,14 +36,7 @@ const Checkout = () => {
       });
   }, [navigate]);
 
-  const handleOrder = async () => {
-    if (!product || !user) return;
-
-    if (!user.address || !user.mobile) {
-      toast.warn('Please complete your profile before placing an order.');
-      return;
-    }
-
+  const handlePaymentSuccess = async (razorpayResponse) => {
     setSubmitting(true);
     try {
       await axiosInstance.post(
@@ -56,18 +50,28 @@ const Checkout = () => {
             phone: user.mobile,
           },
           total: Number(totalPrice),
+          payment: {
+            razorpay_order_id: razorpayResponse.razorpay_order_id,
+            razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+            razorpay_signature: razorpayResponse.razorpay_signature,
+          },
         },
         { withCredentials: true }
       );
 
-      toast.success('Order placed successfully!');
+      toast.success('Payment successful and order created!');
       setTimeout(() => navigate('/orders'), 1000);
     } catch (err) {
-      const message = err.response?.data?.message || 'An error occurred.';
-      toast.error(`Failed to place order: ${message}`);
+      const message = err.response?.data?.message || err.message || 'Order creation failed';
+      toast.error(`Order save failed: ${message}`);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handlePaymentError = (err) => {
+    toast.error('Payment failed or was cancelled.');
+    console.error('Razorpay error:', err);
   };
 
   const increaseQty = () => setQuantity(prev => prev + 1);
@@ -137,13 +141,18 @@ const Checkout = () => {
           </div>
         </div>
 
-        <button
-          onClick={handleOrder}
+        <RazorpayButton
+          amount={Number(totalPrice)}
+          currency="INR"
+          meta={{
+            productId: id,
+            quantity,
+            customer: { name: user.username, address: user.address, phone: user.mobile },
+          }}
+          onSuccess={handlePaymentSuccess}
+          onError={handlePaymentError}
           disabled={submitting}
-          className="w-full bg-black text-white py-4 rounded-2xl text-lg font-bold hover:bg-gray-800 disabled:opacity-50"
-        >
-          {submitting ? 'Processing...' : `Confirm & Pay ₹${totalPrice}`}
-        </button>
+        />
       </div>
     </div>
   );

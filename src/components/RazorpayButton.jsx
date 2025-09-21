@@ -1,10 +1,33 @@
 import React from 'react';
 import axiosInstance from '../utils/axios';
 
-const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta }) => {
+const loadRazorpayScript = () => {
+  return new Promise((resolve, reject) => {
+    if (window.Razorpay) return resolve(true);
+    const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(true));
+      existing.addEventListener('error', () => reject(new Error('Razorpay script failed to load')));
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => reject(new Error('Razorpay script failed to load'));
+    document.body.appendChild(script);
+  });
+};
+
+const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, disabled = false }) => {
   const handlePayment = async () => {
+    if (disabled) return;
     try {
-      // send rupees amount
+      // ensure checkout script is loaded
+      await loadRazorpayScript();
+      if (!window.Razorpay) throw new Error('Razorpay checkout not available');
+
+      // create order on server (amount in rupees)
       const orderRes = await axiosInstance.post('/payment/create-order', { amount, currency, meta }, { withCredentials: true });
       const order = orderRes.data;
 
@@ -29,7 +52,9 @@ const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta }) 
           }
         },
         prefill: {
-          name: '', email: '', contact: ''
+          name: meta?.customer?.name || '',
+          email: meta?.customer?.email || '',
+          contact: meta?.customer?.phone || ''
         },
         theme: { color: '#3399cc' },
       };
@@ -40,11 +65,20 @@ const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta }) 
       });
       rzp.open();
     } catch (err) {
+      console.error('Razorpay error:', err);
       onError && onError(err);
     }
   };
 
-  return <button onClick={handlePayment} className="btn-primary">Pay {amount} {currency}</button>;
+  return (
+    <button
+      onClick={handlePayment}
+      disabled={disabled}
+      className={`w-full py-4 rounded-2xl text-lg font-bold ${disabled ? 'bg-gray-400 text-gray-700' : 'bg-black text-white hover:bg-gray-800'}`}
+    >
+      {disabled ? 'Processing...' : `Confirm & Pay ₹${amount}`}
+    </button>
+  );
 };
 
 export default RazorpayButton;

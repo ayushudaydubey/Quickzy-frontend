@@ -53,7 +53,7 @@ const ProductCard = ({ product }) => {
         <div className="mt-auto flex items-center justify-between">
           <span className="text-zinc-950 text-lg font-bold">₹{product.price}</span>
           <button
-            onClick={handleAddToCart} // ✅ Fixed here
+            onClick={handleAddToCart} //Fixed here
             className="bg-zinc-900 hover:bg-zinc-950 text-white text-sm font-medium px-4 py-2 rounded-lg transition duration-300"
           >
             Add to Cart
