@@ -1,7 +1,9 @@
 import React from 'react';
 import NavBar from '../components/NavBar';
-import Cards from '../components/Cards';
+import Cards from '../components/FashionLifeStyle';
+
 import ProductsList from '../components/ProductList';
+import Technology from '../components/TechnologyGadget';
 
 const Home = () => {
   return (
@@ -24,50 +26,16 @@ const Home = () => {
             Discover trending products, exclusive drops, and effortless fashion inspiration.
           </p>
         </div>
-
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 px-6 pt-10">
-          {[
-            {
-              url: 'https://images.unsplash.com/photo-1575939238474-c8ada13b2724?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTM2fHxmYXNoaW9ufGVufDB8MHwwfHx8MA%3D%3D',
-              text: 'Urban Streetwear',
-              
-              rows: 'row-span-2',
-            },
-            {
-              url: 'https://plus.unsplash.com/premium_photo-1708110767427-b90969e0cdf1?w=500&auto=format&fit=crop',
-              text: 'Minimalist Vibes',
-              cols: '',
-              rows: '',
-            },
-            {
-              url: 'https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=800&q=80',
-              text: 'Cozy Comforts',
-              cols: '',
-              rows: 'row-span-2',
-            },
-            {
-              url: 'https://plus.unsplash.com/premium_photo-1708633003273-bed7672ddd81?q=80&w=1221&auto=format&fit=crop',
-              text: 'Fresh Finds',
-              // cols: 'col-span-2',
-                rows: 'row-span-1',
-            },
-          ].map(({ url, text, cols, rows }, i) => (
-            <div
-              key={i}
-              className={`relative ${cols} ${rows} aspect-[4/3] rounded-xl overflow-hidden shadow-md hover:scale-105 transition-transform duration-300`}
-              style={{ backgroundImage: `url('${url}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-            >
-              <div className="absolute inset-0 bg-black/20 flex items-end p-4">
-                <p className="text-white text-lg font-semibold">{text}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      
+      {/* home page imaeg ui  */}
 
        
-        <section className="pt-6 px-4 mb-16 bg-white/90">
+        <section className="pt-6 px-4 mb-10 bg-white/90">
           <Cards />
+        </section>
+
+           <section className="pt-6 px-4 mb-16 bg-white/90">
+          < Technology />
         </section>
 
        

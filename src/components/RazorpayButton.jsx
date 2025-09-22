@@ -56,7 +56,7 @@ const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, di
           email: meta?.customer?.email || '',
           contact: meta?.customer?.phone || ''
         },
-        theme: { color: '#3399cc' },
+        theme: { color: 'black' },
       };
 
       const rzp = new window.Razorpay(options);

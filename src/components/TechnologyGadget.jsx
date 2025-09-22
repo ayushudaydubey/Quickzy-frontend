@@ -17,19 +17,27 @@ const ProductCardSkeleton = () => {
   );
 };
 
-const Cards = () => {
+const   Technology = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        //  Option 1: if backend supports filtering
+        // const res = await axiosInstance.get('/products?category=Fashion');
+
+        //  Option 2: fetch all and filter
         const res = await axiosInstance.get('/products');
-        setProducts(res.data);
+        const filtered = res.data.filter(
+          (p) => p.category === 'Technology'
+        );
+
+        setProducts(filtered);
       } catch (err) {
         console.error('Failed to fetch products:', err);
       } finally {
-        setLoading(false); //  stop loading after fetch
+        setLoading(false);
       }
     };
     fetchProducts();
@@ -38,15 +46,15 @@ const Cards = () => {
   return (
     <div className="max-w-7xl mx-auto">
       <h2 className="text-3xl font-bold mb-6 mt-4 text-zinc-950 text-left">
-        New Collections...
+        Technology & Gadgets
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {loading
-          ? Array.from({ length: 12 }).map(( i) => (
+          ? Array.from({ length: 12 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))
-          : products.map(product => (
+          : products.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
       </div>
@@ -54,4 +62,4 @@ const Cards = () => {
   );
 };
 
-export default Cards;
+export default  Technology ;
