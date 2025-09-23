@@ -4,6 +4,11 @@ import Cards from '../components/FashionLifeStyle';
 
 import ProductsList from '../components/ProductList';
 import Technology from '../components/TechnologyGadget';
+import FoodWellness from '../components/FoodWellness';
+import Beauty from '../components/Beauty';
+import HomeLiving from '../components/HomeLiving';
+import Accessories from '../components/assesoires';
+import Other from '../components/Other';
 
 const Home = () => {
   return (
@@ -36,6 +41,23 @@ const Home = () => {
 
            <section className="pt-6 px-4 mb-16 bg-white/90">
           < Technology />
+        </section>
+
+           <section className="pt-6 px-4 mb-10 bg-white/90">
+          <FoodWellness />
+        </section>
+
+           <section className="pt-6 px-4 mb-10 bg-white/90">
+          <Beauty />
+        </section>
+           <section className="pt-6 px-4 mb-10 bg-white/90">
+          <HomeLiving />
+        </section>
+           <section className="pt-6 px-4 mb-10 bg-white/90">
+          <Accessories />
+        </section>
+           <section className="pt-6 px-4 mb-10 bg-white/90">
+          <Other />
         </section>
 
        

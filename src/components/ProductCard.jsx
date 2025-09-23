@@ -1,10 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import axiosInstance from '../utils/axios';
 import { toast } from 'react-toastify';
+import { addToCart } from '../store/Reducers/cartSlice';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleCardClick = () => {
     navigate(`/product/${product._id}`);
@@ -15,21 +18,18 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
 
     try {
-      const res = await axiosInstance.get('/me', { withCredentials: true });
-
-      if (res.data?.user) {
-        await axiosInstance.post(
-          '/cart/add-to-cart',
-          { productId: product._id },
-          { withCredentials: true }
-        );
-        toast.success(" Product added to cart!")
-      }
+      // Dispatch thunk which handles the API call + errors
+      await dispatch(addToCart(product._id)).unwrap();
+      toast.success('Product added to cart!');
     } catch (error) {
       console.error('Add to cart error:', error);
-      toast.error(" Please login to add items to your cart")
-      // Redirect to login with redirect back to this product page
-      navigate(`/login?redirect=/product/${product._id}`);
+      // If unauthorized, redirect to login with return URL
+      if (error?.response?.status === 401) {
+        navigate(`/login?redirect=/product/${product._id}`);
+      } else {
+        toast.error('Please login to add items to your cart');
+        navigate(`/login?redirect=/product/${product._id}`);
+      }
     }
   };
 

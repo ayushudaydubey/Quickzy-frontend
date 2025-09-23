@@ -1,4 +1,3 @@
-
 import axiosInstance from "../../utils/axios";
 
 
@@ -18,9 +17,11 @@ export const loginAPI = async (credentials) => {
 };
 
 
+// Normalize /me and /profile responses to always return a user object
 export const getUserProfileAPI = async () => {
   const response = await axiosInstance.get("/me", {
     withCredentials: true,
   });
-  return response.data;
+  // backend sometimes returns { user: {...} } and sometimes { id, username, ... }
+  return response.data.user || response.data;
 };
