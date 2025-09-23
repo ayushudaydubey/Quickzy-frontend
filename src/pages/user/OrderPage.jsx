@@ -11,7 +11,7 @@ const OrdersPage = () => {
         setOrders(res.data.orders || []);
       })
       .catch(err => {
-        console.error('❌ Failed to fetch orders:', err);
+        console.error(' Failed to fetch orders:', err);
         setOrders([]); // fallback to empty
       });
   }, []);
@@ -34,7 +34,7 @@ const OrdersPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">📦 My Orders</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-800"> My Orders</h1>
 
       <div className="space-y-6">
         {orders.map((order, i) => {

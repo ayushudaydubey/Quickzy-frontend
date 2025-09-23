@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import axiosInstance from '../utils/axios';
 import { toast } from 'react-toastify';
 import { addToCart } from '../store/Reducers/cartSlice';
+import axiosInstance from '../utils/axios';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();

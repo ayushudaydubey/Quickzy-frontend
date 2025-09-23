@@ -10,12 +10,16 @@ const Products = () => {
 
   const query = new URLSearchParams(location.search);
   const search = query.get('search') || '';
+  const category = query.get('category') || '';
 
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
       try {
-        const url = search ? `/products?search=${encodeURIComponent(search)}` : '/products';
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (category) params.set('category', category);
+        const url = `/products${params.toString() ? `?${params.toString()}` : ''}`;
         const res = await axiosInstance.get(url);
         setProducts(res.data || []);
       } catch (err) {
@@ -26,7 +30,7 @@ const Products = () => {
       }
     };
     fetch();
-  }, [search]);
+  }, [search, category]);
 
   const openProduct = (id) => navigate(`/product/${id}`);
 
@@ -34,10 +38,15 @@ const Products = () => {
     return <div className="p-10 text-center">Loading products...</div>;
   }
 
+  const titleParts = [];
+  if (search) titleParts.push(`"${search}"`);
+  if (category) titleParts.push(`in ${category}`);
+  const title = titleParts.length ? `Search results ${titleParts.join(' ')}` : 'All Products';
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-6">
-        {search ? `Search results for "${search}"` : 'All Products'}
+        {title}
       </h1>
 
       {products.length === 0 ? (

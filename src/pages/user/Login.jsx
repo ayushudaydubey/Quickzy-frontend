@@ -23,7 +23,8 @@ const Login = () => {
       toast.success('Login successful');
 
       if (isAdmin) {
-        navigate('/admin/create-products', { replace: true });
+        // navigate('/admin/create-products', { replace: true });
+         navigate('/admin/dashboard', { replace: true });
       } else {
         navigate(redirect, { replace: true }); // ✅ Redirect to original page
       }

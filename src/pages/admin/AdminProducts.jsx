@@ -154,7 +154,7 @@ const AdminProducts = () => {
             <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
             <p className="mt-2 text-blue-600 font-semibold">₹ {product.price}</p>
 
-            {/* ✅ Show category */}
+            {/*  Show category */}
             <p className="mt-1 text-sm text-gray-500">
               Category: <span className="font-medium">{product.category || "Uncategorized"}</span>
             </p>

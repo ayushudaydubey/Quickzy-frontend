@@ -1,21 +1,63 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import axiosInstance from '../utils/axios';
+import { loadUser, logout as logoutAction } from '../store/Reducers/userSlice';
+
+const categories = [
+  '',
+  'Fashion',
+  'Technology',
+  'Home & Living',
+  'Food & Wellness',
+  'Accessories',
+  'Beauty',
+  'Other',
+];
 
 const NavBar = () => {
-  // const [mobileOpen, setMobileOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [category, setCategory] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
+
+  // keep input/select in sync with query params
+  useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    setSearchTerm(q.get('search') || '');
+    setCategory(q.get('category') || '');
+  }, [location.search]);
+
+  // load user from session cookie if not loaded
+  useEffect(() => {
+    if (!user) {
+      dispatch(loadUser());
+    }
+  }, [dispatch, user]);
 
   const onSearch = (e) => {
     e.preventDefault();
+    const params = new URLSearchParams();
     const q = searchTerm.trim();
-    if (q) {
-      navigate(`/product?search=${encodeURIComponent(q)}`);
-    } else {
-      navigate('/product');
+    if (q) params.set('search', q);
+    if (category) params.set('category', category);
+    const queryString = params.toString();
+    navigate(`/product${queryString ? `?${queryString}` : ''}`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post('/logout', {}, { withCredentials: true });
+    } catch (err) {
+      // ignore server error, still clear client state
+      console.error('Logout request failed', err);
+    } finally {
+      dispatch(logoutAction());
+      navigate('/', { replace: true });
     }
-    // keep input if you want, or clear:
-    // setSearchTerm('');
   };
 
   return (
@@ -37,6 +79,17 @@ const NavBar = () => {
             placeholder="Search products by name..."
             className="w-full px-4 py-2 border rounded-lg focus:outline-none"
           />
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="px-3 py-2 border rounded-lg bg-white"
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat === '' ? 'All categories' : cat}
+              </option>
+            ))}
+          </select>
           <button
             type="submit"
             className="px-4 py-2 bg-black text-white rounded-lg"
@@ -46,12 +99,27 @@ const NavBar = () => {
         </form>
 
         <nav className="flex items-center gap-4">
-          {/* <Link to="/cart" className="text-sm">
-            Cart
-          </Link> */}
-          <Link to="/login" className="text-sm">
-            Login
-          </Link>
+          {/* If user is logged in show profile + orders (and logout), otherwise show Login */}
+          {user ? (
+            <>
+              <Link to="/orders" className="text-sm">
+                Orders
+              </Link>
+              <Link to="/profile" className="text-sm font-medium">
+                {user.username || 'Profile'}
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-sm px-3 py-1 bg-gray-100 rounded"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="text-sm">
+              Login
+            </Link>
+          )}
         </nav>
       </div>
     </header>
