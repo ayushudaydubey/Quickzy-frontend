@@ -46,7 +46,7 @@ const Cards = () => {
           Fashion / Lifestyle
         </h2>
         <button className="px-4 py-2 rounded-2xl border border-y-zinc-950 cursor-pointer">
-          View More
+          Scroll for More 
         </button>
       </div>
 
