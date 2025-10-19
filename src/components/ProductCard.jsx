@@ -38,9 +38,15 @@ const ProductCard = ({ product }) => {
       onClick={handleCardClick}
       className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition duration-300 cursor-pointer overflow-hidden flex flex-col transform hover:-translate-y-1"
     >
+      {/* image count badge */}
+      {Array.isArray(product.images) && product.images.length > 1 && (
+        <div className="absolute mt-3 mr-3 right-0 z-10">
+          <span className="bg-black text-white text-xs px-2 py-1 rounded">{product.images.length} images</span>
+        </div>
+      )}
       <div className="overflow-hidden">
         <img
-          src={product.image}
+          src={(Array.isArray(product.images) && product.images[0]) || product.image}
           alt={product.title}
           className="w-full h-60 object-cover transition-transform duration-300 hover:scale-105"
         />

@@ -49,19 +49,26 @@ const AdminProducts = () => {
 
   const onSubmit = async (data) => {
     try {
-      // normalize types before sending
-      const payload = {
-        ...data,
-        price: Number(data.price),
-        category: data.category || 'Other',
-      };
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('price', data.price);
+      formData.append('category', data.category || 'Other');
+      if (data.images && data.images.length > 0) {
+        for (let i = 0; i < data.images.length; i++) {
+          formData.append('images', data.images[i]);
+        }
+      }
 
-      // create or update product
       if (editingId) {
-        await axiosInstance.put(`/products/${editingId}`, payload, { withCredentials: true });
+        // For update, you may want to support image update as well (not implemented here)
+        await axiosInstance.put(`/products/${editingId}`, data, { withCredentials: true });
         toast.success('Product updated!');
       } else {
-        await axiosInstance.post('/products', payload, { withCredentials: true });
+        await axiosInstance.post('/products', formData, {
+          withCredentials: true,
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         toast.success('Product created!');
       }
 
@@ -69,7 +76,6 @@ const AdminProducts = () => {
       setEditingId(null);
       fetchProducts();
     } catch (err) {
-      // show detailed server message for debugging
       const serverMsg = err?.response?.data?.message || err?.response?.data?.error || err.message;
       console.error('Product save error:', err?.response || err);
       toast.error(`Action failed: ${serverMsg}`);
@@ -80,7 +86,6 @@ const AdminProducts = () => {
     setEditingId(product._id);
     setValue('title', product.title);
     setValue('description', product.description);
-    setValue('image', product.image);
     setValue('price', product.price);
     setValue('category', product.category); //  category preload
   };
@@ -113,7 +118,7 @@ const AdminProducts = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-xl shadow space-y-4 mb-10">
         <input {...register('title', { required: true })} placeholder="Title" className="w-full p-2 border rounded" />
         <textarea {...register('description', { required: true })} placeholder="Description" className="w-full p-2 border rounded" />
-        <input {...register('image', { required: true })} placeholder="Image URL" className="w-full p-2 border rounded" />
+        <input type="file" {...register('images', { required: true })} accept="image/*" multiple className="w-full p-2 border rounded" />
         <input type="number" step="0.01" {...register('price', { required: true })} placeholder="Price" className="w-full p-2 border rounded" />
 
         {/* ✅ Category Dropdown */}
@@ -149,7 +154,11 @@ const AdminProducts = () => {
       <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
         {products.map((product) => (
           <div key={product._id} className="bg-white p-4 rounded-xl shadow relative">
-            <img src={product.image} alt={product.title} className="h-40 w-full object-cover rounded mb-3" />
+            <div className="flex gap-2 overflow-x-auto mb-3">
+              {Array.isArray(product.images) && product.images.map((img, idx) => (
+                <img key={idx} src={img} alt={product.title} className="h-24 w-24 object-cover rounded" />
+              ))}
+            </div>
             <h4 className="font-bold text-lg">{product.title}</h4>
             <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
             <p className="mt-2 text-blue-600 font-semibold">₹ {product.price}</p>

@@ -15,6 +15,7 @@ import SingleCart from '../pages/user/SingleCart';
 import Checkout from '../pages/user/Checkout';
 import OrdersPage from '../pages/user/OrderPage';
 import UserProfile from '../components/UserProfile';
+import UsersProductStatus from '../pages/admin/UsersProductsStatus';
 
 const MainRoutes = () => {
   return (
@@ -28,6 +29,7 @@ const MainRoutes = () => {
       <Route path='/product' element={<PrivateRoute><Products /></PrivateRoute>} />
       <Route path='/cart' element={<PrivateRoute><Cart /></PrivateRoute>} />
       <Route path='/admin/create-products' element={<PrivateRoute><AdminProducts /></PrivateRoute>} />
+      <Route path='/admin/product-status' element={<PrivateRoute><UsersProductStatus /></PrivateRoute>} />
       <Route path='/admin/dashboard' element={<PrivateRoute adminOnly={true}><AdminDashBoard /></PrivateRoute>} />
 
       <Route path='/single-cart/:id' element={<PrivateRoute><SingleCart /></PrivateRoute>} />

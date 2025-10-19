@@ -23,7 +23,7 @@ const useAddToCart = () => {
         quantity,
         title: product.title,
         price: product.price,
-        image: product.image
+    image: (Array.isArray(product.images) && product.images[0]) || product.image
       });
 
       return { 

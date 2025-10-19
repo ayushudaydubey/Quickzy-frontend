@@ -59,7 +59,22 @@ const Products = () => {
               className="bg-white rounded-xl shadow p-4 cursor-pointer"
               onClick={() => openProduct(p._id)}
             >
-              <img src={p.image} alt={p.title} className="h-40 w-full object-cover rounded mb-3" />
+              <div className="mb-3">
+                <img
+                  src={(Array.isArray(p.images) && p.images[0]) || p.image}
+                  alt={p.title}
+                  className="h-40 w-full object-cover rounded"
+                />
+
+                {Array.isArray(p.images) && p.images.length > 1 && (
+                  <div className="flex gap-2 mt-2 overflow-x-auto">
+                    {p.images.slice(0, 4).map((img, idx) => (
+                      <img key={idx} src={img} alt={`${p.title} ${idx + 1}`} className="h-16 w-16 object-cover rounded" />
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <h3 className="font-semibold">{p.title}</h3>
               <p className="text-sm text-gray-600 line-clamp-2">{p.description}</p>
               <div className="mt-2 flex justify-between items-center">
