@@ -10,6 +10,7 @@ const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
 
   const handleCardClick = () => {
+    console.log('ProductCard click:', product._id);
     navigate(`/product/${product._id}`);
   };
 

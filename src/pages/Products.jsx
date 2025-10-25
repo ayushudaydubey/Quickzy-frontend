@@ -33,6 +33,8 @@ const Products = () => {
   }, [search, category]);
 
   const openProduct = (id) => navigate(`/product/${id}`);
+  // debug
+  const openProductDebug = (id) => { console.log('Products page openProduct:', id); navigate(`/product/${id}`); };
 
   if (loading) {
     return <div className="p-10 text-center">Loading products...</div>;
@@ -57,7 +59,7 @@ const Products = () => {
             <div
               key={p._id}
               className="bg-white rounded-xl shadow p-4 cursor-pointer"
-              onClick={() => openProduct(p._id)}
+              onClick={() => openProductDebug(p._id)}
             >
               <div className="mb-3">
                 <img
