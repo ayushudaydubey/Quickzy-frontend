@@ -61,8 +61,11 @@ const AdminProducts = () => {
       }
 
       if (editingId) {
-        // For update, you may want to support image update as well (not implemented here)
-        await axiosInstance.put(`/products/${editingId}`, data, { withCredentials: true });
+        // For update: send FormData (supports optional new images)
+        await axiosInstance.put(`/products/${editingId}`, formData, {
+          withCredentials: true,
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         toast.success('Product updated!');
       } else {
         await axiosInstance.post('/products', formData, {
@@ -118,7 +121,7 @@ const AdminProducts = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-xl shadow space-y-4 mb-10">
         <input {...register('title', { required: true })} placeholder="Title" className="w-full p-2 border rounded" />
         <textarea {...register('description', { required: true })} placeholder="Description" className="w-full p-2 border rounded" />
-        <input type="file" {...register('images', { required: true })} accept="image/*" multiple className="w-full p-2 border rounded" />
+  <input type="file" {...register('images', { required: !editingId })} accept="image/*" multiple className="w-full p-2 border rounded" />
         <input type="number" step="0.01" {...register('price', { required: true })} placeholder="Price" className="w-full p-2 border rounded" />
 
         {/* ✅ Category Dropdown */}

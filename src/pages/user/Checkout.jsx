@@ -124,6 +124,14 @@ const Checkout = () => {
 
               
           </div>
+          <div className="mt-4 text-right">
+            <button
+              onClick={() => navigate('/profile')}
+              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Edit Profile
+            </button>
+          </div>
         </div>
 
         <div className="border p-6 rounded-2xl bg-gray-50">

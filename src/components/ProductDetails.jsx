@@ -1,47 +1,51 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axiosInstance from '../utils/axios';
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axios";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
-  const [message, setMessage] = useState('');
-  const [selectedImage, setSelectedImage] = useState('');
+  const [message, setMessage] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    axiosInstance.get(`/products/${id}`)
-      .then(res => {
+    axiosInstance
+      .get(`/products/${id}`)
+      .then((res) => {
         if (!mounted) return;
         setProduct(res.data);
-        const first = Array.isArray(res.data.images) && res.data.images.length > 0
-          ? res.data.images[0]
-          : (res.data.image || '');
+        const first =
+          Array.isArray(res.data.images) && res.data.images.length > 0
+            ? res.data.images[0]
+            : res.data.image || "";
         setSelectedImage(first);
       })
-      .catch(() => setMessage('❌ Product not found'));
-    return () => { mounted = false; };
+      .catch(() => setMessage(" Product not found"));
+    return () => {
+      mounted = false;
+    };
   }, [id]);
 
   const performAddToCart = useCallback(async () => {
     try {
       await axiosInstance.post(
-        '/cart/add-to-cart',
+        "/cart/add-to-cart",
         { productId: id },
         { withCredentials: true }
       );
       navigate(`/checkout/${id}`, { state: { quantity: 1 } });
     } catch (err) {
-      console.error('Add to cart failed', err);
-      setMessage('❌ Failed to add to cart');
+      console.error("Add to cart failed", err);
+      setMessage("❌ Failed to add to cart");
     }
   }, [id, navigate]);
 
   const handleAddToCart = async () => {
     try {
-      await axiosInstance.get('/me', { withCredentials: true });
+      await axiosInstance.get("/me", { withCredentials: true });
       performAddToCart();
     } catch {
       navigate(`/login?redirect=/product/${id}`);
@@ -50,10 +54,48 @@ const ProductDetails = () => {
 
   const openModal = (img) => {
     if (img) setSelectedImage(img);
-    console.log('openModal', img);
     setIsModalOpen(true);
   };
+
   const closeModal = () => setIsModalOpen(false);
+
+  const getImages = () =>
+    Array.isArray(product?.images) && product.images.length > 0
+      ? product.images
+      : product?.image
+      ? [product.image]
+      : [];
+
+  const showNext = (e) => {
+    if (e) e.stopPropagation();
+    const imgs = getImages();
+    if (!imgs.length) return;
+    const idx = imgs.indexOf(selectedImage);
+    const next = idx === -1 ? 0 : (idx + 1) % imgs.length;
+    setSelectedImage(imgs[next]);
+  };
+
+  const showPrev = (e) => {
+    if (e) e.stopPropagation();
+    const imgs = getImages();
+    if (!imgs.length) return;
+    const idx = imgs.indexOf(selectedImage);
+    const prev =
+      idx === -1 ? imgs.length - 1 : (idx - 1 + imgs.length) % imgs.length;
+    setSelectedImage(imgs[prev]);
+  };
+
+  // keyboard navigation
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handler = (ev) => {
+      if (ev.key === "ArrowRight") showNext();
+      if (ev.key === "ArrowLeft") showPrev();
+      if (ev.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isModalOpen, selectedImage, product]);
 
   if (!product) {
     return (
@@ -61,7 +103,7 @@ const ProductDetails = () => {
         <div className="text-center space-y-4">
           <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-black text-xl font-medium">
-            {message || 'Loading product...'}
+            {message || "Loading product..."}
           </p>
         </div>
       </div>
@@ -73,42 +115,39 @@ const ProductDetails = () => {
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
           <div className="flex flex-col lg:flex-row">
-            <div className="lg:w-1/2 relative group">
-              {/* Image gallery */}
-              <div className="aspect-square lg:aspect-auto lg:h-[600px] overflow-hidden flex flex-col items-center">
+            {/* ---------- Left: Images ---------- */}
+            <div className="lg:w-1/2 relative">
+              <div className="aspect-square lg:h-[600px] overflow-hidden flex flex-col items-center">
                 {Array.isArray(product.images) && product.images.length > 0 ? (
                   <>
                     <img
                       src={selectedImage}
                       alt={product.title}
-                      className="w-full h-96 object-center object-cover rounded mb-2"
-                      onError={(e) => (e.target.src = '/fallback.jpg')}
+                      className="w-full h-96 object-center object-cover rounded mb-2 cursor-pointer transition-transform duration-300 hover:scale-105"
                       onClick={() => openModal(selectedImage)}
-                      style={{ cursor: 'pointer' }}
+                      onError={(e) => (e.target.src = "/fallback.jpg")}
                     />
                     <div
-                      className="flex gap-2 mt-2"
-                      style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 6 }}
+                      className="flex gap-2 mt-2 overflow-x-auto pb-2"
                       aria-label="Product thumbnails"
                     >
                       {product.images.map((img, idx) => (
                         <button
                           key={idx}
                           type="button"
-                          onClick={() => {
-                            console.log('Thumbnail click:', img);
-                            setSelectedImage(img);
-                            setIsModalOpen(true);
-                          }}
-                          className={`inline-flex items-center justify-center p-0 border-0 ${img === selectedImage ? 'ring-2 ring-blue-500 rounded' : ''}`}
-                          style={{ cursor: 'pointer', flex: '0 0 auto' }}
+                          onClick={() => openModal(img)}
+                          className={`flex-shrink-0 p-0 border-0 rounded ${
+                            img === selectedImage
+                              ? "ring-2 ring-blue-500"
+                              : "hover:ring-2 hover:ring-gray-300"
+                          }`}
                           aria-label={`View ${product.title} image ${idx + 1}`}
                         >
                           <img
                             src={img}
                             alt={`${product.title} ${idx + 1}`}
-                            className="h-16 w-16 object-cover rounded flex-shrink-0"
-                            onError={(e) => (e.target.src = '/fallback.jpg')}
+                            className="h-16 w-16 object-cover rounded"
+                            onError={(e) => (e.target.src = "/fallback.jpg")}
                           />
                         </button>
                       ))}
@@ -116,15 +155,16 @@ const ProductDetails = () => {
                   </>
                 ) : (
                   <img
-                    src={product.image || '/fallback.jpg'}
+                    src={product.image || "/fallback.jpg"}
                     alt={product.title}
                     className="w-full h-96 object-center object-cover rounded"
-                    onError={(e) => (e.target.src = '/fallback.jpg')}
+                    onError={(e) => (e.target.src = "/fallback.jpg")}
                   />
                 )}
-                <div className="absolute inset-0"></div>
               </div>
             </div>
+
+            {/* ---------- Right: Details ---------- */}
             <div className="lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center space-y-8">
               <div className="space-y-6">
                 <h1 className="text-4xl lg:text-5xl font-bold text-black leading-tight">
@@ -141,6 +181,7 @@ const ProductDetails = () => {
                   <span className="text-gray-500 text-sm">Premium Quality</span>
                 </div>
               </div>
+
               {message && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                   <div className="text-red-600 font-medium flex items-center space-x-2">
@@ -148,9 +189,10 @@ const ProductDetails = () => {
                   </div>
                 </div>
               )}
+
               <button
                 onClick={handleAddToCart}
-                className="group relative w-full sm:w-auto px-8 py-4 bg-black hover:bg-gray-800 text-white font-bold text-lg rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 overflow-hidden"
+                className="group relative w-full sm:w-auto px-8 py-4 bg-black hover:bg-gray-800 text-white font-bold text-lg rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105"
               >
                 <span className="relative z-10">Add to Cart & Checkout</span>
               </button>
@@ -159,47 +201,49 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Modal for fullscreen image */}
+      {/* ---------- Modal ---------- */}
       {isModalOpen && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]"
           onClick={closeModal}
+          role="dialog"
+          aria-modal="true"
         >
+          {/* Prev Button */}
+          <button
+            onClick={(e) => showPrev(e)}
+            aria-label="Previous image"
+            className="absolute left-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full 
+                       bg-white/10 border border-white/20 text-white text-3xl 
+                       flex items-center justify-center backdrop-blur-sm hover:bg-white/20"
+          >
+            ‹
+          </button>
+
+          {/* Image */}
           <img
             src={selectedImage}
             alt="Full Screen"
-            style={{
-              maxWidth: '90vw',
-              maxHeight: '90vh',
-              boxShadow: '0 0 20px #000',
-              borderRadius: '8px',
-            }}
+            className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
+
+          {/* Next Button */}
+          <button
+            onClick={(e) => showNext(e)}
+            aria-label="Next image"
+            className="absolute right-5 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full 
+                       bg-white/10 border border-white/20 text-white text-3xl 
+                       flex items-center justify-center backdrop-blur-sm hover:bg-white/20"
+          >
+            ›
+          </button>
+
+          {/* Close Button */}
           <button
             onClick={closeModal}
-            style={{
-              position: 'absolute',
-              top: 30,
-              right: 40,
-              fontSize: 32,
-              color: '#fff',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-            }}
             aria-label="Close"
+            className="absolute top-6 right-8 text-4xl text-white hover:text-gray-300"
           >
             &times;
           </button>
