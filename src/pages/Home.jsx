@@ -9,6 +9,7 @@ import Beauty from '../components/Beauty';
 import HomeLiving from '../components/HomeLiving';
 import Accessories from '../components/assesoires';
 import Other from '../components/Other';
+import Hero from '../components/Hero';
 
 const Home = () => {
   return (
@@ -33,8 +34,10 @@ const Home = () => {
         </div>
       
       {/* home page imaeg ui  */}
-
-       
+        <section className="pt-6 px-4 mb-10 bg-white/90">
+          <Hero />
+        </section>
+         
         <section className="pt-6 px-4 mb-10 bg-white/90">
           <Cards />
         </section>
