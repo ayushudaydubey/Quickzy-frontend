@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { addToCart } from '../store/Reducers/cartSlice';
 import axiosInstance from '../utils/axios';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, showBuy = false }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -34,6 +34,13 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Navigate straight to checkout for a single-item purchase
+    navigate(`/checkout/${product._id}`, { state: { quantity: 1 } });
+  };
+
   return (
     <div
       onClick={handleCardClick}
@@ -59,12 +66,21 @@ const ProductCard = ({ product }) => {
 
         <div className="mt-auto flex items-center justify-between">
           <span className="text-zinc-950 text-lg font-bold">₹{product.price}</span>
-          <button
-            onClick={handleAddToCart} //Fixed here
-            className="bg-zinc-900 hover:bg-zinc-950 text-white text-sm font-medium px-4 py-2 rounded-lg transition duration-300"
-          >
-            Add to Cart
-          </button>
+          {showBuy ? (
+            <button
+              onClick={handleCardClick}
+              className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition duration-300"
+            >
+              Buy Now
+            </button>
+          ) : (
+            <button
+              onClick={handleAddToCart} //Fixed here
+              className="bg-zinc-900 hover:bg-zinc-950 text-white text-sm font-medium px-4 py-2 rounded-lg transition duration-300"
+            >
+              Add to Cart
+            </button>
+          )}
         </div>
       </div>
     </div>
