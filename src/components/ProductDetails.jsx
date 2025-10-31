@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
+import ProductCard from './ProductCard';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -22,12 +23,28 @@ const ProductDetails = () => {
             ? res.data.images[0]
             : res.data.image || "";
         setSelectedImage(first);
+        // fetch related products by same category (exclude current product)
+        if (res.data?.category) {
+          const cat = encodeURIComponent(res.data.category);
+          axiosInstance
+            .get(`/products?category=${cat}`)
+            .then((r) => {
+              if (!mounted) return;
+              const related = Array.isArray(r.data) ? r.data.filter(p => p._id !== res.data._id) : [];
+              setRelatedProducts(related);
+            })
+            .catch(() => {
+              // ignore related fetch errors
+            });
+        }
       })
       .catch(() => setMessage(" Product not found"));
     return () => {
       mounted = false;
     };
   }, [id]);
+
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   const performAddToCart = useCallback(async () => {
     try {
@@ -39,7 +56,7 @@ const ProductDetails = () => {
       navigate(`/checkout/${id}`, { state: { quantity: 1 } });
     } catch (err) {
       console.error("Add to cart failed", err);
-      setMessage("❌ Failed to add to cart");
+      setMessage(" Failed to add to cart");
     }
   }, [id, navigate]);
 
@@ -249,6 +266,18 @@ const ProductDetails = () => {
           </button>
         </div>
       )}
+
+        {/* ---------- Related Products ---------- */}
+        {relatedProducts && relatedProducts.length > 0 && (
+          <div className="max-w-7xl mx-auto mt-12 px-4">
+            <h3 className="text-2xl font-semibold mb-6">Related Products</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {relatedProducts.map((p) => (
+                <ProductCard key={p._id} product={p} showBuy={true} />
+              ))}
+            </div>
+          </div>
+        )}
     </div>
   );
 };

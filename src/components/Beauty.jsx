@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
 import ProductCard from './ProductCard';
 
@@ -35,18 +36,27 @@ const Beauty = () => {
     fetchProducts();
   }, []);
 
+  const navigate = useNavigate();
+
   return (
     <div className="max-w-7xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6 mt-4 text-zinc-950 text-left">
-        Beauty
-      </h2>
+      <div className="flex items-end justify-between mb-6 mt-4">
+        <h2 className="text-3xl font-bold text-zinc-950 text-left">Beauty</h2>
+        <button
+          onClick={() => navigate('/product?category=Beauty')}
+          className="px-6 py-2 border border-black text-black text-xs font-light tracking-wider uppercase hover:bg-black hover:text-white transition-all"
+        >
+          View All
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {loading
           ? Array.from({ length: 12 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))
           : products.map((product) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard key={product._id} product={product} showBuy={true} />
             ))}
       </div>
     </div>
