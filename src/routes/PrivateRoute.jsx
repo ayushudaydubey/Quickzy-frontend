@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axios';
 
@@ -24,11 +24,17 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
     checkAccess();
   }, [adminOnly]);
 
+  const location = useLocation();
+
   if (isAllowed === null) {
     return <p className="text-center mt-10">Checking access...</p>;
   }
 
-  return isAllowed ? children : <Navigate to="/login" replace />;
+  if (isAllowed) return children;
+
+  // not allowed -> redirect to login and preserve attempted path
+  const attempted = location.pathname + location.search;
+  return <Navigate to={`/login?redirect=${encodeURIComponent(attempted)}`} replace />;
 };
 
 export default PrivateRoute;
