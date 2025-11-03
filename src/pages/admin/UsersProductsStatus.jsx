@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axiosInstance from '../../utils/axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import usePagination from '../../hooks/usePagination';
 
 const STATUS_OPTIONS = [
   'pending',
@@ -16,6 +17,8 @@ const UsersProductStatus = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [pageSize, setPageSize] = useState(6);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -33,6 +36,31 @@ const UsersProductStatus = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  // sort newest first by createdAt
+  const sortedOrders = useMemo(() => {
+    return (orders || []).slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [orders]);
+
+  // apply status filter
+  const filteredOrders = useMemo(() => {
+    if (filterStatus === 'all') return sortedOrders;
+    return sortedOrders.filter(o => o.status === filterStatus);
+  }, [sortedOrders, filterStatus]);
+
+  const { paginatedData, currentPage, totalPages, next, prev, gotoPage } = usePagination(filteredOrders, pageSize);
+
+  const CATEGORY_OPTIONS = ['Fashion','Technology','Home & Living','Food & Wellness','Accessories','Beauty','Other'];
+
+  const updateProductCategory = async (productId, category) => {
+    try {
+      await axiosInstance.put(`/products/${productId}`, { category }, { withCredentials: true });
+      toast.success('Product category updated');
+    } catch (err) {
+      console.error('Failed to update product category', err);
+      toast.error('Failed to update product category');
+    }
+  };
 
   const updateStatus = async (orderId, status, incrementAttempt = false, note = '') => {
     setUpdatingId(orderId);
@@ -52,7 +80,6 @@ const UsersProductStatus = () => {
       setUpdatingId(null);
     }
   };
-
   if (loading) {
     return <div className="text-center mt-20">Loading orders...</div>;
   }
@@ -60,13 +87,33 @@ const UsersProductStatus = () => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <ToastContainer />
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard — Orders</h1>
+      <h1 className="text-2xl font-bold mb-4">Admin Dashboard — Orders</h1>
 
-      {orders.length === 0 ? (
-        <div className="text-gray-600">No orders found.</div>
+      {/* Status filter buttons */}
+      <div className="flex flex-wrap gap-3 mb-4">
+        <button className={`px-3 py-1 rounded ${filterStatus === 'all' ? 'bg-black text-white' : 'border'}`} onClick={() => setFilterStatus('all')}>All</button>
+        {STATUS_OPTIONS.map(s => (
+          <button key={s} className={`px-3 py-1 rounded ${filterStatus === s ? 'bg-black text-white' : 'border'}`} onClick={() => setFilterStatus(s)}>{s}</button>
+        ))}
+      </div>
+
+      {/* Page size selector */}
+      <div className="flex items-center gap-3 mb-4">
+        <label className="text-sm">Page size:</label>
+        <select value={pageSize} onChange={(e) => setPageSize(Number(e.target.value))} className="p-1 border rounded">
+          <option value={5}>5</option>
+          <option value={6}>6</option>
+          <option value={9}>9</option>
+          <option value={12}>12</option>
+        </select>
+  <div className="text-sm text-gray-600">Showing {filteredOrders.length} orders</div>
+      </div>
+
+      {filteredOrders.length === 0 ? (
+        <div className="text-gray-600">No orders found for this filter.</div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => {
+          {paginatedData.map((order) => {
             const product = order.productId || {};
             const user = order.userId || {};
             return (
@@ -120,6 +167,21 @@ const UsersProductStatus = () => {
                     >
                       + Record delivery attempt
                     </button>
+
+                    {/* product category quick-change */}
+                    <div className="mt-2">
+                      <div className="text-xs text-gray-500">Product category</div>
+                      <select
+                        value={product.category || ''}
+                        onChange={(e) => updateProductCategory(product._id, e.target.value)}
+                        className="p-1 border rounded text-sm mt-1"
+                      >
+                        <option value="">Uncategorized</option>
+                        {CATEGORY_OPTIONS.map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
@@ -140,6 +202,13 @@ const UsersProductStatus = () => {
               </div>
             );
           })}
+
+          {/* pagination controls */}
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <button onClick={prev} className="px-3 py-1 border rounded" disabled={currentPage <= 1}>Prev</button>
+            <div className="space-x-2">Page {currentPage} of {totalPages}</div>
+            <button onClick={next} className="px-3 py-1 border rounded" disabled={currentPage >= totalPages}>Next</button>
+          </div>
         </div>
       )}
     </div>
