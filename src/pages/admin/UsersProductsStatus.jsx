@@ -120,7 +120,7 @@ const UsersProductStatus = () => {
               <div key={order._id} className="bg-white rounded-xl shadow border p-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <img src={(Array.isArray(product.images) && product.images[0]) || product.image} alt={product.title} className="w-20 h-20 object-cover rounded" />
+                    <img src={(Array.isArray(product.images) && product.images[0]) || product.image} alt={product.title} loading="lazy" decoding="async" className="w-20 h-20 object-cover rounded" />
                     <div>
                       <div className="font-semibold">{product.title}</div>
                       <div className="text-sm text-gray-600">Order: {order._id}</div>
@@ -216,4 +216,3 @@ const UsersProductStatus = () => {
 };
 
 export default UsersProductStatus;
-

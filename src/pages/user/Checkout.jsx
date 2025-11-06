@@ -98,7 +98,7 @@ const Checkout = () => {
         <div className="border p-6 rounded-2xl">
           <h2 className="text-xl font-bold mb-4">Order Summary</h2>
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <img src={(Array.isArray(product.images) && product.images[0]) || product.image} alt={product.title} className="w-32 h-32 object-cover rounded-xl" />
+            <img src={(Array.isArray(product.images) && product.images[0]) || product.image} alt={product.title} loading="lazy" decoding="async" className="w-32 h-32 object-cover rounded-xl" />
             <div className="flex-1 text-center md:text-left">
               <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
 

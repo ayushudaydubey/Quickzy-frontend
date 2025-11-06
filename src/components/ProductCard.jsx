@@ -56,6 +56,8 @@ const ProductCard = ({ product, showBuy = false }) => {
         <img
           src={(Array.isArray(product.images) && product.images[0]) || product.image}
           alt={product.title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-60 object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>

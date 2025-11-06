@@ -17,7 +17,7 @@ function PaginatedProducts({ products = [], onEdit, onDelete }) {
           <div key={product._id} className="bg-white p-4 rounded-xl shadow relative">
             <div className="flex gap-2 overflow-x-auto mb-3">
               {Array.isArray(product.images) && product.images.map((img, idx) => (
-                <img key={idx} src={img} alt={product.title} className="h-24 w-24 object-cover rounded" />
+                <img key={idx} src={img} alt={product.title} loading="lazy" decoding="async" className="h-24 w-24 object-cover rounded" />
               ))}
             </div>
             <h4 className="font-bold text-lg">{product.title}</h4>

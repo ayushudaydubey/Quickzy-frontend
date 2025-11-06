@@ -113,6 +113,8 @@ const ProductDetails = () => {
               <img
                 src={selectedImage}
                 alt={product.title}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-[480px] object-cover rounded-xl cursor-pointer transition-transform duration-300 hover:scale-105"
                 onClick={() => setIsModalOpen(true)}
                 onError={(e) => (e.target.src = "/fallback.jpg")}
@@ -131,6 +133,8 @@ const ProductDetails = () => {
                     <img
                       src={img}
                       alt={`thumb-${idx}`}
+                      loading="lazy"
+                      decoding="async"
                       className="h-16 w-16 object-cover rounded-md"
                       onError={(e) => (e.target.src = "/fallback.jpg")}
                     />
@@ -205,6 +209,8 @@ const ProductDetails = () => {
           <img
             src={selectedImage}
             alt="preview"
+            loading="lazy"
+            decoding="async"
             className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
