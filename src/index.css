@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Global defaults: dark background and white text across the app */
+body {
+
+background-color: #09090B;
+}
+
 .scrollbarHide{
   scrollbar-width: none;
 }
