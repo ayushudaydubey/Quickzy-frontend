@@ -3,33 +3,37 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import ProductCard from "./ProductCard";
 
-// Skeleton Loader
+// Skeleton Loader (light theme)
 const Skeleton = () => (
-  <div className="min-w-[300px] bg-zinc-900 rounded-2xl overflow-hidden animate-pulse border border-zinc-800">
-    <div className="w-full h-64 bg-zinc-800" />
-    <div className="p-5 space-y-3">
-      <div className="h-4 bg-zinc-800 rounded w-3/4"></div>
-      <div className="h-4 bg-zinc-800 rounded w-full"></div>
-      <div className="h-4 bg-zinc-800 rounded w-2/3"></div>
+  <div className="min-w-[300px] bg-zinc-100 overflow-hidden animate-pulse rounded-xl border border-zinc-300">
+    <div className="w-full h-96 bg-zinc-200" />
+    <div className="p-6 space-y-4">
+      <div className="h-5 bg-zinc-200 w-3/4" />
+      <div className="h-4 bg-zinc-100 w-full" />
+      <div className="flex justify-between pt-3">
+        <div className="h-6 bg-zinc-200 w-24" />
+        <div className="h-10 w-10 bg-zinc-200" />
+      </div>
     </div>
   </div>
 );
 
-// Navigation Buttons
+// Navigation Buttons (light theme)
 const NavButton = ({ direction, onClick }) => (
   <button
     onClick={onClick}
-    className="w-10 h-10 border border-zinc-700 hover:bg-white hover:text-black text-white transition-all rounded-full flex items-center justify-center"
+    className="w-11 h-11 border border-zinc-300 hover:bg-zinc-100 rounded-full transition-all duration-300 flex items-center justify-center hover:scale-110 group"
+    aria-label={`Scroll ${direction}`}
   >
     <svg
-      className="w-5 h-5"
+      className="w-5 h-5 text-zinc-600 group-hover:text-zinc-950 transition-colors duration-300"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.5}
       viewBox="0 0 24 24"
     >
       <path
-        strokeLinecap="square"
+        strokeLinecap="round"
+        strokeWidth={1.8}
         d={direction === "left" ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"}
       />
     </svg>
@@ -46,7 +50,7 @@ const Beauty = () => {
     axiosInstance
       .get("/products")
       .then((res) => setProducts(res.data.filter((p) => p.category === "Beauty")))
-      .catch((err) => console.error("Failed to fetch:", err))
+      .catch((err) => console.error("Failed to fetch products:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -57,61 +61,75 @@ const Beauty = () => {
     });
 
   return (
-    <section className="bg-zinc-950 text-white py-20">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12">
-          <div>
-            <p className="text-sm font-light text-zinc-400 uppercase mb-3 tracking-widest">
-              Curated Selection
-            </p>
-            <h2 className="text-4xl md:text-6xl font-semibold text-white">
-              Beauty
-            </h2>
-            <p className="text-zinc-400 mt-2 text-sm md:text-base">
-              Discover premium beauty essentials for your everyday glow.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4 mt-6 md:mt-0">
-            <NavButton direction="left" onClick={() => scroll("left")} />
-            <NavButton direction="right" onClick={() => scroll("right")} />
-            <button
-              onClick={() => navigate("/product?category=Beauty")}
-              className="px-6 py-3 border border-white text-white text-xs font-medium uppercase rounded-full hover:bg-white hover:text-black transition-all"
-            >
-              View All
-            </button>
-          </div>
+    <div className="max-w-7xl mx-auto  bg-white text-zinc-950">
+      {/* Header */}
+      <div className="flex items-end justify-between mb-10">
+        <div>
+          <p className="text-xs font-light text-zinc-500 tracking-wider uppercase mb-3">
+            Curated Selection
+          </p>
+          <h2 className="text-5xl md:text-6xl font-thin tracking-tight">
+            Beauty
+          </h2>
+      
         </div>
 
-        {/* Product Scroll */}
-        <div className="relative">
-          <div
-            ref={scrollRef}
-            className="flex gap-8 overflow-x-auto pb-8 no-scrollbar scroll-smooth"
+        <div className="flex items-center gap-3">
+          <NavButton direction="left" onClick={() => scroll("left")} />
+          <NavButton direction="right" onClick={() => scroll("right")} />
+          <div className="w-px h-9 bg-zinc-300 mx-3" />
+          <button
+            onClick={() => navigate("/product?category=Beauty")}
+            className="px-8 py-3 border border-zinc-300 text-zinc-950 text-xs font-medium tracking-wider uppercase rounded-full hover:bg-zinc-950 hover:text-white transition-all duration-300 transform hover:scale-105"
           >
-            {loading
-              ? Array.from({ length: 6 }, (_, i) => <Skeleton key={i} />)
-              : products.map((product) => (
-                  <div
-                    key={product._id}
-                    className="min-w-[300px] max-w-[300px] flex-shrink-0"
-                  >
-                    <ProductCard product={product} showBuy={true} />
-                  </div>
-                ))}
-          </div>
+            View All
+          </button>
         </div>
-
-        {/* Empty State */}
-        {!loading && !products.length && (
-          <div className="text-center py-32 text-zinc-500 uppercase tracking-widest">
-            No Products Available
-          </div>
-        )}
       </div>
-    </section>
+
+      {/* Product Section */}
+      <div className="relative">
+        <div
+          ref={scrollRef}
+          className="flex gap-8 overflow-x-auto pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+          {loading
+            ? Array.from({ length: 6 }, (_, i) => <Skeleton key={i} />)
+            : products.map((product) => (
+                <div
+                  key={product._id}
+                  className="group min-w-[300px] bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-zinc-400 transition-all duration-300 hover:scale-[1.02]"
+                >
+                  <ProductCard product={product} showBuy={true} />
+                </div>
+              ))}
+        </div>
+      </div>
+
+      {/* Empty State */}
+      {!loading && !products.length && (
+        <div className="text-center py-32">
+          <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-zinc-100 rounded-full border border-zinc-300">
+            <svg
+              className="w-10 h-10 text-zinc-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="miter"
+                strokeWidth={1.3}
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+          </div>
+          <p className="text-base text-zinc-500 font-light tracking-wider uppercase">
+            No Products Available
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import ProductCard from "./ProductCard";
 
-// Skeleton Loader
+// Skeleton Loader (light theme)
 const Skeleton = () => (
   <div className="min-w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
     <div className="w-full h-64 bg-gray-300"></div>
@@ -15,7 +15,7 @@ const Skeleton = () => (
   </div>
 );
 
-// Navigation Button
+// Navigation Button (light theme)
 const NavButton = ({ direction, onClick }) => (
   <button
     onClick={onClick}
@@ -59,7 +59,7 @@ const Other = () => {
     });
 
   return (
-    <div className="max-w-7xl mx-auto py-12 bg-white">
+    <div className="max-w-7xl mx-auto text-zinc-950 bg-white">
       {/* Header */}
       <div className="flex items-end justify-between mb-10 px-1">
         <div>
