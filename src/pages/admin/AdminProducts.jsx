@@ -111,7 +111,10 @@ const AdminProducts = () => {
       formData.append('title', data.title);
       formData.append('description', data.description);
       formData.append('price', data.price);
-      formData.append('category', data.category || 'Other');
+      // only set category when creating a new product; prevent changing category during edit
+      if (!editingId) {
+        formData.append('category', data.category || 'Other');
+      }
       if (data.images && data.images.length > 0) {
         for (let i = 0; i < data.images.length; i++) {
           formData.append('images', data.images[i]);
@@ -185,8 +188,8 @@ const AdminProducts = () => {
   <input type="file" {...register('images', { required: !editingId })} accept="image/*" multiple className="w-full p-2 border rounded" />
         <input type="number" step="0.01" {...register('price', { required: true })} placeholder="Price" className="w-full p-2 border rounded" />
 
-        {/* ✅ Category Dropdown */}
-        <select {...register('category', { required: true })} className="w-full p-2 border rounded">
+        {/* ✅ Category Dropdown (disabled while editing to prevent category changes) */}
+        <select {...register('category', { required: true })} className="w-full p-2 border rounded" disabled={!!editingId}>
           <option value="">-- Select Category --</option>
           <option value="Fashion">Fashion / Lifestyle</option>
           <option value="Technology">Technology / Gadgets</option>

@@ -82,12 +82,12 @@ const Cards = () => {
   return (
     <div className="max-w-7xl mx-auto py-8 bg-white text-zinc-950 ">
       {/* Header */}
-      <div className="flex items-end justify-between mb-10 py-6 px-4 rounded-2xl bg-gradient-to-r from-zinc-100/50 via-zinc-400 to-zinc-700   ">
+      <div className="flex items-end justify-between mb-10 py-6 px-4 rounded-2xl bg-gradient-to-r from-zinc-100/70 via-zinc-500 to-zinc-700   ">
         <div>
           <p className="text-[10px] font-medium text-zinc-400 tracking-[0.2em] uppercase mb-2 letterspacing">
             Curated Selection
           </p>
-          <h2 className="text-4xl md:text-5xl font-light tracking-tight text-zinc-900">
+          <h2 className="text-4xl md:text-6xl font-light tracking-tight text-zinc-900">
             Fashion & Lifestyle
           </h2>
         </div>

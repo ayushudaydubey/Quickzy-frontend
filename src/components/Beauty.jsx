@@ -75,13 +75,13 @@ const Beauty = () => {
   return (
     <div className="max-w-7xl mx-auto py-8 bg-white text-zinc-950">
       {/* Header */}
-      <div className="flex items-end justify-between mb-10 py-6 px-4 rounded-2xl bg-gradient-to-r from-pink-100 via-pink-300 to-rose-400">
+      <div className="flex items-end justify-between mb-10 py-6 px-4 rounded-2xl bg-gradient-to-r from-zinc-100/70 via-zinc-500 to-zinc-700">
         <div>
           <p className="text-[10px] font-medium text-zinc-600 tracking-[0.2em] uppercase mb-2">
             Curated Selection
           </p>
-          <h2 className="text-4xl md:text-5xl font-light tracking-tight text-zinc-900">
-            Beauty
+          <h2 className="text-4xl md:text-6xl font-light tracking-tight text-zinc-900">
+            Beauty That Speaks
           </h2>
         </div>
 

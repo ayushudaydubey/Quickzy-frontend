@@ -52,16 +52,6 @@ const UsersProductStatus = () => {
 
   const CATEGORY_OPTIONS = ['Fashion','Technology','Home & Living','Food & Wellness','Accessories','Beauty','Other'];
 
-  const updateProductCategory = async (productId, category) => {
-    try {
-      await axiosInstance.put(`/products/${productId}`, { category }, { withCredentials: true });
-      toast.success('Product category updated');
-    } catch (err) {
-      console.error('Failed to update product category', err);
-      toast.error('Failed to update product category');
-    }
-  };
-
   const updateStatus = async (orderId, status, incrementAttempt = false, note = '') => {
     setUpdatingId(orderId);
     try {
@@ -168,19 +158,10 @@ const UsersProductStatus = () => {
                       + Record delivery attempt
                     </button>
 
-                    {/* product category quick-change */}
+                    {/* product category quick-change removed per admin policy */}
                     <div className="mt-2">
                       <div className="text-xs text-gray-500">Product category</div>
-                      <select
-                        value={product.category || ''}
-                        onChange={(e) => updateProductCategory(product._id, e.target.value)}
-                        className="p-1 border rounded text-sm mt-1"
-                      >
-                        <option value="">Uncategorized</option>
-                        {CATEGORY_OPTIONS.map(c => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
+                      <div className="text-sm font-medium mt-1">{product.category || 'Uncategorized'}</div>
                     </div>
                   </div>
                 </div>

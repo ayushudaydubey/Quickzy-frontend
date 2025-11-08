@@ -78,7 +78,7 @@ const HomeLiving = () => {
           <p className="text-[10px] font-medium text-zinc-400 tracking-[0.2em] uppercase mb-2">
             Cozy Inspirations
           </p>
-          <h2 className="text-4xl md:text-5xl font-light tracking-tight text-zinc-900">
+          <h2 className="text-4xl md:text-6xl font-light tracking-tight text-zinc-900">
             Home & Living
           </h2>
         </div>
