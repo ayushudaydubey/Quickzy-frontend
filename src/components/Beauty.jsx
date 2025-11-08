@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import ProductCard from "./ProductCard";
 
-// Skeleton Loader (light theme)
+// Skeleton Loader
 const Skeleton = () => (
   <div className="min-w-[300px] bg-zinc-100 overflow-hidden animate-pulse rounded-xl border border-zinc-300">
     <div className="w-full h-96 bg-zinc-200" />
@@ -18,22 +18,29 @@ const Skeleton = () => (
   </div>
 );
 
-// Navigation Buttons (light theme)
 const NavButton = ({ direction, onClick }) => (
   <button
     onClick={onClick}
-    className="w-11 h-11 border border-zinc-300 hover:bg-zinc-100 rounded-full transition-all duration-300 flex items-center justify-center hover:scale-110 group"
+    className="relative w-10 h-10 bg-zinc-800 rounded-full overflow-hidden transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow group border border-transparent hover:border-zinc-900"
     aria-label={`Scroll ${direction}`}
   >
+    {/* Animated gradient background */}
+    <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-black to-zinc-950 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full pointer-events-none" />
+
+    {/* Shimmer effect */}
+    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full pointer-events-none" />
+
+    {/* Icon */}
     <svg
-      className="w-5 h-5 text-zinc-600 group-hover:text-zinc-950 transition-colors duration-300"
+      className="relative w-4 h-4 text-zinc-300 group-hover:text-white transition-colors duration-300"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
+      strokeWidth={2.5}
     >
       <path
         strokeLinecap="round"
-        strokeWidth={1.8}
+        strokeLinejoin="round"
         d={direction === "left" ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"}
       />
     </svg>
@@ -49,9 +56,14 @@ const Beauty = () => {
   useEffect(() => {
     axiosInstance
       .get("/products")
-      .then((res) => setProducts(res.data.filter((p) => p.category === "Beauty")))
-      .catch((err) => console.error("Failed to fetch products:", err))
-      .finally(() => setLoading(false));
+      .then((res) => {
+        setProducts(res.data.filter((p) => p.category === "Beauty"));
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch products:", err);
+        setLoading(false);
+      });
   }, []);
 
   const scroll = (dir) =>
@@ -61,33 +73,40 @@ const Beauty = () => {
     });
 
   return (
-    <div className="max-w-7xl mx-auto  bg-white text-zinc-950">
+    <div className="max-w-7xl mx-auto py-8 bg-white text-zinc-950">
       {/* Header */}
-      <div className="flex items-end justify-between mb-10">
+      <div className="flex items-end justify-between mb-10 py-6 px-4 rounded-2xl bg-gradient-to-r from-pink-100 via-pink-300 to-rose-400">
         <div>
-          <p className="text-xs font-light text-zinc-500 tracking-wider uppercase mb-3">
+          <p className="text-[10px] font-medium text-zinc-600 tracking-[0.2em] uppercase mb-2">
             Curated Selection
           </p>
-          <h2 className="text-5xl md:text-6xl font-thin tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-light tracking-tight text-zinc-900">
             Beauty
           </h2>
-      
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <NavButton direction="left" onClick={() => scroll("left")} />
           <NavButton direction="right" onClick={() => scroll("right")} />
-          <div className="w-px h-9 bg-zinc-300 mx-3" />
+          <div className="w-[1px] h-8 bg-zinc-200 mx-2" />
           <button
             onClick={() => navigate("/product?category=Beauty")}
-            className="px-8 py-3 border border-zinc-300 text-zinc-950 text-xs font-medium tracking-wider uppercase rounded-full hover:bg-zinc-950 hover:text-white transition-all duration-300 transform hover:scale-105"
+            className="relative px-6 py-2.5 bg-gradient-to-r from-zinc-900 via-black to-zinc-950 text-white text-[11px] font-medium tracking-[0.15em] uppercase rounded-full transition-all duration-500 shadow-sm hover:shadow-xl overflow-hidden group"
           >
-            View All
+            {/* Animated background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-700 via-zinc-800 to-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+            <span className="relative z-10 group-hover:text-white transition-colors duration-300">
+              View All
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Product Section */}
+      {/* Product Cards */}
       <div className="relative">
         <div
           ref={scrollRef}

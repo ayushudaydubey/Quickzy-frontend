@@ -3,33 +3,45 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import ProductCard from "./ProductCard";
 
-// Skeleton Loader
+// Skeleton Loader (same style as Cards.jsx)
 const Skeleton = () => (
-  <div className="min-w-[300px] bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse">
-    <div className="w-full h-64 bg-gray-300"></div>
-    <div className="p-4 space-y-2">
-      <div className="h-5 bg-gray-300 rounded w-3/4"></div>
-      <div className="h-4 bg-gray-300 rounded w-full"></div>
-      <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+  <div className="min-w-[300px] bg-zinc-100 overflow-hidden animate-pulse rounded-xl border border-zinc-300">
+    <div className="w-full h-96 bg-zinc-200" />
+    <div className="p-6 space-y-4">
+      <div className="h-5 bg-zinc-200 w-3/4" />
+      <div className="h-4 bg-zinc-100 w-full" />
+      <div className="flex justify-between pt-3">
+        <div className="h-6 bg-zinc-200 w-24" />
+        <div className="h-10 w-10 bg-zinc-200" />
+      </div>
     </div>
   </div>
 );
 
-// Navigation Buttons
+// Navigation Button (same as Cards.jsx)
 const NavButton = ({ direction, onClick }) => (
   <button
     onClick={onClick}
-    className="w-10 h-10 border border-black hover:bg-black transition-all group rounded-full flex items-center justify-center"
+    className="relative w-10 h-10 bg-zinc-800 rounded-full overflow-hidden transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow group border border-transparent hover:border-zinc-900"
+    aria-label={`Scroll ${direction}`}
   >
+    {/* Animated gradient background */}
+    <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-black to-zinc-950 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full pointer-events-none" />
+
+    {/* Shimmer effect */}
+    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full pointer-events-none" />
+
+    {/* SVG Icon */}
     <svg
-      className="w-5 h-5 text-black group-hover:text-white transition-colors"
+      className="relative w-4 h-4 text-zinc-300 group-hover:text-white transition-colors duration-300"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.5}
       viewBox="0 0 24 24"
+      strokeWidth={2.5}
     >
       <path
-        strokeLinecap="square"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         d={direction === "left" ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"}
       />
     </svg>
@@ -43,66 +55,68 @@ const HomeLiving = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await axiosInstance.get("/products");
-        const filtered = res.data.filter(
-          (p) => p.category === "Home & Living"
-        );
-        setProducts(filtered);
-      } catch (err) {
-        console.error("Failed to fetch products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
+    axiosInstance
+      .get("/products")
+      .then((res) =>
+        setProducts(res.data.filter((p) => p.category === "Home & Living"))
+      )
+      .catch((err) => console.error("Failed to fetch:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const scroll = (dir) =>
     scrollRef.current?.scrollBy({
-      left: dir === "left" ? -400 : 400,
+      left: dir === "left" ? -420 : 420,
       behavior: "smooth",
     });
 
   return (
-    <div className="max-w-7xl mx-auto py-12 bg-white">
-      {/* Header */}
-      <div className="flex items-end justify-between mb-10 px-1">
+    <div className="max-w-7xl mx-auto py-8 bg-white text-zinc-950">
+      {/* Header Section */}
+      <div className="flex items-end justify-between mb-10 py-6 px-4 rounded-2xl bg-gradient-to-r from-zinc-100/50 via-zinc-400 to-zinc-700">
         <div>
-          <p className="text-xs font-light text-gray-400 uppercase mb-3">
-            Curated Picks
+          <p className="text-[10px] font-medium text-zinc-400 tracking-[0.2em] uppercase mb-2">
+            Cozy Inspirations
           </p>
-          <h2 className="text-5xl md:text-6xl font-light text-black">
+          <h2 className="text-4xl md:text-5xl font-light tracking-tight text-zinc-900">
             Home & Living
           </h2>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <NavButton direction="left" onClick={() => scroll("left")} />
           <NavButton direction="right" onClick={() => scroll("right")} />
-          <div className="w-px h-8 bg-gray-300 mx-3" />
+          <div className="w-[1px] h-8 bg-red-200 mx-2" />
           <button
             onClick={() => navigate("/product?category=Home%20%26%20Living")}
-            className="px-8 py-3 border border-black text-black text-xs font-light uppercase hover:bg-black hover:text-white transition-all"
+            className="relative px-6 py-2.5 bg-gradient-to-r from-zinc-900 via-black to-zinc-950 text-white text-[11px] font-medium tracking-[0.15em] uppercase rounded-full transition-all duration-500 shadow-sm hover:shadow-xl overflow-hidden group"
           >
-            View All
+            {/* Animated gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-700 via-zinc-800 to-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+            {/* Button text */}
+            <span className="relative z-10 group-hover:text-white transition-colors duration-300">
+              View All
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Scroll Section */}
+      {/* Product Section */}
       <div className="relative">
         <div
           ref={scrollRef}
-          className="flex gap-8 overflow-x-auto pb-8 px-1 [&::-webkit-scrollbar]:hidden"
+          className="flex gap-8 overflow-x-auto pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {loading
             ? Array.from({ length: 6 }, (_, i) => <Skeleton key={i} />)
             : products.map((product) => (
                 <div
                   key={product._id}
-                  className="min-w-[300px] max-w-[300px] flex-shrink-0"
+                  className="group min-w-[300px] bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-zinc-400 transition-all duration-300 hover:scale-[1.02]"
                 >
                   <ProductCard product={product} showBuy={true} />
                 </div>
@@ -112,8 +126,25 @@ const HomeLiving = () => {
 
       {/* Empty State */}
       {!loading && !products.length && (
-        <div className="text-center py-32 text-gray-400 uppercase">
-          No Products Available
+        <div className="text-center py-32">
+          <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-zinc-100 rounded-full border border-zinc-300">
+            <svg
+              className="w-10 h-10 text-zinc-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="miter"
+                strokeWidth={1.3}
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+          </div>
+          <p className="text-base text-zinc-500 font-light tracking-wider uppercase">
+            No Products Available
+          </p>
         </div>
       )}
     </div>
