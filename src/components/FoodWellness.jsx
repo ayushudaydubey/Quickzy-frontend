@@ -106,7 +106,7 @@ const FoodWellness = () => {
             : products.map((product) => (
                 <div
                   key={product._id}
-                  className="group min-w-[300px] bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-green-400 transition-all duration-300 hover:scale-[1.02]"
+                  className="group min-w-[300px] bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-green-400 mt-4 transition-all duration-300 hover:scale-[1.02]"
                 >
                   <ProductCard product={product} showBuy={true} />
                 </div>

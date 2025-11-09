@@ -45,19 +45,7 @@ const ProductDetails = () => {
     return () => (mounted = false);
   }, [id]);
 
-  const handleAddToCart = useCallback(async () => {
-    try {
-      await axiosInstance.get("/me", { withCredentials: true });
-      await axiosInstance.post(
-        "/cart/add-to-cart",
-        { productId: id },
-        { withCredentials: true }
-      );
-      navigate(`/checkout/${id}`, { state: { quantity: 1 } });
-    } catch {
-      navigate(`/login?redirect=/product/${id}`);
-    }
-  }, [id, navigate]);
+  // Cart/checkout feature removed; wishlist remains only
 
   const getImages = () =>
     Array.isArray(product?.images)
@@ -168,10 +156,10 @@ const ProductDetails = () => {
               )}
 
               <button
-                onClick={handleAddToCart}
+                onClick={() => navigate(`/checkout/${id}`, { state: { quantity: 1 } })}
                 className="px-8 py-4 bg-zinc-900 text-white rounded-xl font-semibold hover:bg-zinc-800 transition-transform duration-300 hover:scale-105 shadow-md"
               >
-                Add to Cart & Checkout
+                Buy Now
               </button>
             </div>
           </div>
@@ -183,7 +171,7 @@ const ProductDetails = () => {
             <h3 className="text-2xl font-semibold mb-6">Related Products</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {relatedProducts.map((p) => (
-                <ProductCard key={p._id} product={p} showBuy />
+                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           </div>

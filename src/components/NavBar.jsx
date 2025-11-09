@@ -23,6 +23,10 @@ const NavBar = () => {
 
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
+  const cartItems = useSelector((state) => state.cart.items || []);
+  const wishlistItems = useSelector((state) => state.wishlist.items || []);
+  const cartCount = cartItems.reduce((s, it) => s + (Number(it.quantity) || 0), 0);
+  const wishlistCount = Array.isArray(wishlistItems) ? wishlistItems.length : 0;
 
   // keep input/select in sync with query params
   useEffect(() => {
@@ -123,6 +127,18 @@ const NavBar = () => {
                   className="text-xs text-neutral-400 font-light uppercase tracking-widest hover:text-white transition-colors"
                 >
                   Orders
+                </Link>
+                <Link to="/cart" className="relative text-xs text-neutral-400 font-light uppercase tracking-widest hover:text-white transition-colors">
+                  Cart
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-3 bg-red-600 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">{cartCount}</span>
+                  )}
+                </Link>
+                <Link to="/wishlist" className="relative text-xs text-neutral-400 font-light uppercase tracking-widest hover:text-white transition-colors">
+                  Wishlist
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-2 -right-3 bg-pink-600 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">{wishlistCount}</span>
+                  )}
                 </Link>
                 <Link 
                   to="/profile" 

@@ -115,7 +115,7 @@ const Technology = () => {
             : products.map((product) => (
                 <div
                   key={product._id}
-                  className="group min-w-[300px] bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-zinc-400 transition-all duration-300 hover:scale-[1.02]"
+                  className="group min-w-[300px] bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-zinc-400 transition-all mt-4 duration-300 hover:scale-[1.02]"
                 >
                   <ProductCard product={product} showBuy={true} />
                 </div>

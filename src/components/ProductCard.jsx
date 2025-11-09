@@ -1,8 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { addToCart } from "../store/Reducers/cartSlice";
+import { addToWishlist, removeFromWishlist } from '../store/Reducers/wishlistSlice';
+import axiosInstance from '../utils/axios';
 
 const truncateWords = (text, limit = 15) => {
   if (!text) return "";
@@ -13,25 +14,33 @@ const truncateWords = (text, limit = 15) => {
 const ProductCard = ({ product, showBuy = false }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  // cart feature removed; keep wishlist only
+  const wishlistItems = useSelector((state) => state.wishlist.items || []);
+  const isWishlisted = wishlistItems.some((p) => String(p._id || p) === String(product._id));
 
   const handleCardClick = () => {
     navigate(`/product/${product._id}`);
   };
 
-  const handleAddToCart = async (e) => {
+  const handleWishlistToggle = async (e) => {
     e.stopPropagation();
     try {
-      await dispatch(addToCart(product._id)).unwrap();
-      toast.success("Added to cart!");
-    } catch {
-      toast.error("Please login first");
+      if (isWishlisted) {
+        await dispatch(removeFromWishlist(product._id)).unwrap();
+        toast.success('Removed from wishlist');
+      } else {
+        await dispatch(addToWishlist(product._id)).unwrap();
+        toast.success('Added to wishlist');
+      }
+    } catch (err) {
+      toast.error('Please login to manage wishlist');
       navigate(`/login?redirect=/product/${product._id}`);
     }
   };
 
   const handleBuyNow = (e) => {
     e.stopPropagation();
-    navigate(`/checkout/${product._id}`, { state: { quantity: 1 } });
+    navigate(`/product/${product._id}`, { state: { quantity: 1 } });
   };
 
   return (
@@ -41,12 +50,38 @@ const ProductCard = ({ product, showBuy = false }) => {
     >
       {/* Image Section */}
       <div className="overflow-hidden h-[60%] relative">
-        <img
-          src={(Array.isArray(product.images) && product.images[0]) || product.image}
-          alt={product.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          loading="lazy"
-        />
+        {(() => {
+          // pick first valid image string from product.images or product.image
+          let raw = null;
+          if (Array.isArray(product?.images)) {
+            raw = product.images.find((it) => typeof it === 'string' && it.trim() !== '') || null;
+          }
+          if (!raw && typeof product?.image === 'string') raw = product.image;
+          // fallback
+          const DEFAULT_FALLBACK = 'https://via.placeholder.com/600x400?text=No+Image';
+          let imgSrc = raw || DEFAULT_FALLBACK;
+          // if relative path, prefix backend baseURL
+          if (typeof imgSrc === 'string' && imgSrc.startsWith('/')) {
+            const base = (axiosInstance && axiosInstance.defaults && axiosInstance.defaults.baseURL) || '';
+            imgSrc = (base.replace(/\/$/, '') || '') + imgSrc;
+          }
+
+          return (
+            <img
+              src={imgSrc}
+              alt={product.title}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              loading="lazy"
+              onError={(e) => {
+                // when image fails, use external fallback
+                if (!e.currentTarget.src || !e.currentTarget.src.includes('placeholder.com')) {
+                  e.currentTarget.src = DEFAULT_FALLBACK;
+                }
+              }}
+            />
+          );
+        })()}
+
         {Array.isArray(product.images) && product.images.length > 1 && (
           <span className="absolute top-3 right-3 bg-zinc-900 text-white text-[10px] px-2 py-1 rounded-full">
             {product.images.length} Images
@@ -70,21 +105,27 @@ const ProductCard = ({ product, showBuy = false }) => {
             ₹{product.price}
           </span>
 
-          {showBuy ? (
+          <div className="flex items-center gap-2">
             <button
-              onClick={handleBuyNow}
+              onClick={handleWishlistToggle}
+              className={`px-3 py-1 rounded-full text-sm transition-colors ${isWishlisted ? 'bg-pink-500 text-white' : 'bg-transparent border border-zinc-200 text-zinc-900'}`}
+              title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              {isWishlisted ? '♥' : '♡'}
+            </button>
+
+            {/* Buy Now should navigate directly to checkout with quantity 1 */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleBuyNow(e);
+              }}
               className="bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-medium px-4 py-2 rounded-full transition-all duration-300"
+              title="Buy Now"
             >
               Buy Now
             </button>
-          ) : (
-            <button
-              onClick={handleAddToCart}
-              className="border border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white text-xs font-medium px-4 py-2 rounded-full transition-all duration-300"
-            >
-              Add to Cart
-            </button>
-          )}
+          </div>
         </div>
       </div>
     </div>
