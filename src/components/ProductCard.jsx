@@ -51,16 +51,39 @@ const ProductCard = ({ product, showBuy = false }) => {
       {/* Image Section */}
       <div className="overflow-hidden h-[60%] relative">
         {(() => {
-          // pick first valid image string from product.images or product.image
-          let raw = null;
-          if (Array.isArray(product?.images)) {
-            raw = product.images.find((it) => typeof it === 'string' && it.trim() !== '') || null;
-          }
-          if (!raw && typeof product?.image === 'string') raw = product.image;
-          // fallback
+          // pick first valid image URL from product.images or product.image
           const DEFAULT_FALLBACK = 'https://via.placeholder.com/600x400?text=No+Image';
+
+          const extractUrl = (val) => {
+            if (!val) return '';
+            if (typeof val === 'string') return val;
+            if (typeof val === 'object') {
+              return (
+                val.url || val.secure_url || val.path || val.src || val.publicUrl || val.public_id || ''
+              );
+            }
+            return '';
+          };
+
+          let raw = '';
+          if (Array.isArray(product?.images)) {
+            for (const it of product.images) {
+              const u = extractUrl(it);
+              if (u && typeof u === 'string' && u.trim() !== '') {
+                raw = u;
+                break;
+              }
+            }
+          }
+
+          if (!raw) {
+            raw = extractUrl(product?.image) || '';
+          }
+
+          // final fallback
           let imgSrc = raw || DEFAULT_FALLBACK;
-          // if relative path, prefix backend baseURL
+
+          // if relative path (starts with /) prefix backend baseURL
           if (typeof imgSrc === 'string' && imgSrc.startsWith('/')) {
             const base = (axiosInstance && axiosInstance.defaults && axiosInstance.defaults.baseURL) || '';
             imgSrc = (base.replace(/\/$/, '') || '') + imgSrc;
@@ -73,7 +96,6 @@ const ProductCard = ({ product, showBuy = false }) => {
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
               onError={(e) => {
-                // when image fails, use external fallback
                 if (!e.currentTarget.src || !e.currentTarget.src.includes('placeholder.com')) {
                   e.currentTarget.src = DEFAULT_FALLBACK;
                 }

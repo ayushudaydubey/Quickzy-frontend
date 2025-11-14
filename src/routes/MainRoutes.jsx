@@ -20,6 +20,7 @@ const Checkout = lazy(() => import('../pages/user/Checkout'));
 const OrdersPage = lazy(() => import('../pages/user/OrderPage'));
 const UserProfile = lazy(() => import('../components/UserProfile'));
 const UsersProductStatus = lazy(() => import('../pages/admin/UsersProductsStatus'));
+const AllUsers = lazy(() => import('../pages/admin/AllUsers'));
 
 const MainRoutes = () => {
   return (
@@ -39,6 +40,7 @@ const MainRoutes = () => {
   <Route path='/admin/payments' element={<PrivateRoute adminOnly={true}><AdminPayments /></PrivateRoute>} />
   <Route path='/admin/payments/:orderId' element={<PrivateRoute adminOnly={true}><AdminPaymentDetail /></PrivateRoute>} />
   <Route path='/admin/dashboard' element={<PrivateRoute adminOnly={true}><AdminDashBoard /></PrivateRoute>} />
+  <Route path='/all-users' element={<PrivateRoute adminOnly={true}><AllUsers /></PrivateRoute>} />
 
       <Route path='/single-cart/:id' element={<PrivateRoute><SingleCart /></PrivateRoute>} />
       <Route path='/checkout/:id' element={<PrivateRoute><Checkout /></PrivateRoute>} />

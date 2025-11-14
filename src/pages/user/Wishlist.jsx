@@ -23,12 +23,44 @@ const Wishlist = () => {
 
         for (const p of items) {
           if (!p) continue;
-          if (typeof p === 'object' && (p.title || p.images || p.image)) {
-            result.push(p);
+
+          // unwrap wrapper objects like { product: {...} } or { productId: ... }
+          let entry = p;
+          if (p && typeof p === 'object' && p.product) entry = p.product;
+
+          // If this looks like a product object, normalize image(s) then keep it
+          if (entry && typeof entry === 'object' && (entry.title || entry.images || entry.image)) {
+            // Ensure `images` is always an array of string URLs for consistent rendering
+            const extractUrl = (val) => {
+              if (!val) return '';
+              if (typeof val === 'string') return val;
+              if (typeof val === 'object') {
+                return (
+                  val.url || val.secure_url || val.path || val.src || val.publicUrl || val.public_id || ''
+                );
+              }
+              return '';
+            };
+
+            if (Array.isArray(entry.images)) {
+              entry.images = entry.images.map(extractUrl).filter((x) => !!x);
+            } else if (typeof entry.images === 'string' && entry.images.trim() !== '') {
+              entry.images = [entry.images];
+            } else if (entry.image) {
+              const u = extractUrl(entry.image);
+              entry.images = u ? [u] : [];
+            } else if (entry.images) {
+              const u = extractUrl(entry.images);
+              entry.images = u ? [u] : [];
+            } else {
+              entry.images = [];
+            }
+
+            result.push(entry);
             continue;
           }
 
-          const id = typeof p === 'string' ? p : p._id;
+          const id = typeof entry === 'string' ? entry : entry._id || entry.productId;
           if (id) toFetch.push(id);
         }
 
