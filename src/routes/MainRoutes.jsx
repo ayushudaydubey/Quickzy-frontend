@@ -21,6 +21,7 @@ const OrdersPage = lazy(() => import('../pages/user/OrderPage'));
 const UserProfile = lazy(() => import('../components/UserProfile'));
 const UsersProductStatus = lazy(() => import('../pages/admin/UsersProductsStatus'));
 const AllUsers = lazy(() => import('../pages/admin/AllUsers'));
+const PageNotFound = lazy(() => import('../pages/PageNotFound'));
 
 const MainRoutes = () => {
   return (
@@ -48,6 +49,8 @@ const MainRoutes = () => {
 
       {/* Profile route (protected) */}
       <Route path='/profile' element={<PrivateRoute><UserProfile /></PrivateRoute>} />
+      {/* Catch-all: show themed 404 page when route not found */}
+      <Route path='*' element={<PageNotFound />} />
       </Routes>
     </Suspense>
   );
