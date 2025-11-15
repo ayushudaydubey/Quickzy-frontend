@@ -27,9 +27,7 @@ const NavBar = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const cartItems = useSelector((state) => state.cart.items || []);
-  const wishlistItems = useSelector((state) => state.wishlist.items || []);
   const cartCount = cartItems.reduce((s, it) => s + (Number(it.quantity) || 0), 0);
-  const wishlistCount = Array.isArray(wishlistItems) ? wishlistItems.length : 0;
 
   // keep input/select in sync with query params
   useEffect(() => {
@@ -153,12 +151,7 @@ const NavBar = () => {
                     <span className="absolute -top-2 -right-3 bg-red-600 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">{cartCount}</span>
                   )}
                 </Link>
-                <Link to="/wishlist" className="relative text-xs text-neutral-400 font-light uppercase tracking-widest hover:text-white transition-colors">
-                  Wishlist
-                  {wishlistCount > 0 && (
-                    <span className="absolute -top-2 -right-3 bg-pink-600 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">{wishlistCount}</span>
-                  )}
-                </Link>
+                {/* wishlist removed */}
                 <Link 
                   to="/profile" 
                   className="text-xs text-white font-light uppercase tracking-widest hover:text-neutral-400 transition-colors"
@@ -199,12 +192,7 @@ const NavBar = () => {
                     <span className="absolute top-0 right-0 bg-pink-600 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center text-[10px]">{cartCount}</span>
                   )}
                 </Link>
-                <Link to="/wishlist" className="relative text-white p-2 hover:text-neutral-300 transition-colors">
-                  <Heart size={20} />
-                  {wishlistCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-pink-600 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center text-[10px]">{wishlistCount}</span>
-                  )}
-                </Link>
+                {/* wishlist removed */}
               </>
             )}
           </div>
@@ -283,16 +271,7 @@ const NavBar = () => {
                     <span className="ml-auto bg-red-600 text-white rounded-full text-xs px-2 py-1">{cartCount}</span>
                   )}
                 </Link>
-                <Link 
-                  to="/wishlist" 
-                  className="flex items-center gap-3 px-4 py-3 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors rounded-none"
-                >
-                  <Heart size={20} />
-                  <span className="font-light tracking-wider">Wishlist</span>
-                  {wishlistCount > 0 && (
-                    <span className="ml-auto bg-pink-600 text-white rounded-full text-xs px-2 py-1">{wishlistCount}</span>
-                  )}
-                </Link>
+                {/* wishlist removed */}
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 w-full px-4 py-3 text-neutral-400 hover:text-white hover:bg-neutral-900 transition-colors rounded-none"

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { loadUser } from './store/Reducers/userSlice';
-import { loadWishlist } from './store/Reducers/wishlistSlice';
+// wishlist feature removed
+import { loadCart } from './store/Reducers/cartSlice';
 import MainRoutes from './routes/MainRoutes';
 import Footer from './components/Footer';
 import NavBar from './components/NavBar';
@@ -11,8 +12,8 @@ const App = () => {
 
   useEffect(() => {
     dispatch(loadUser()).then(() => {
-      // Cart/checkout feature removed; we only load wishlist now
-      dispatch(loadWishlist());
+      // load cart after user is loaded
+      dispatch(loadCart());
     });
   }, [dispatch]);
 

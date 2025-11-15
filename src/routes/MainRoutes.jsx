@@ -14,7 +14,7 @@ const AdminDashBoard = lazy(() => import('../pages/admin/AdminDashBoard'));
 const AdminPayments = lazy(() => import('../pages/admin/Payments'));
 const AdminPaymentDetail = lazy(() => import('../pages/admin/PaymentDetail'));
 const ProductDetails = lazy(() => import('../components/ProductDetails'));
-const Wishlist = lazy(() => import('../pages/user/Wishlist'));
+// wishlist removed
 const SingleCart = lazy(() => import('../pages/user/SingleCart'));
 const Checkout = lazy(() => import('../pages/user/Checkout'));
 const OrdersPage = lazy(() => import('../pages/user/OrderPage'));
@@ -35,7 +35,7 @@ const MainRoutes = () => {
 
       <Route path='/product' element={<PrivateRoute><Products /></PrivateRoute>} />
   <Route path='/cart' element={<PrivateRoute><Cart /></PrivateRoute>} />
-  <Route path='/wishlist' element={<PrivateRoute><Wishlist /></PrivateRoute>} />
+  {/* wishlist removed */}
   <Route path='/admin/create-products' element={<PrivateRoute><AdminProducts /></PrivateRoute>} />
   <Route path='/admin/product-status' element={<PrivateRoute><UsersProductStatus /></PrivateRoute>} />
   <Route path='/admin/payments' element={<PrivateRoute adminOnly={true}><AdminPayments /></PrivateRoute>} />
