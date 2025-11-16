@@ -70,6 +70,24 @@ const UsersProductStatus = () => {
       setUpdatingId(null);
     }
   };
+
+  const updateDeliveryDate = async (orderId, dateStr) => {
+    setUpdatingId(orderId);
+    try {
+      const res = await axiosInstance.put(
+        `/admin/orders/${orderId}/delivery`,
+        { expectedDeliveryDate: dateStr },
+        { withCredentials: true }
+      );
+      toast.success('Expected delivery date updated');
+      setOrders((prev) => prev.map(o => (o._id === orderId ? res.data.order : o)));
+    } catch (err) {
+      console.error('Update delivery date error', err);
+      toast.error('Failed to update delivery date');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
   if (loading) {
     return <div className="text-center mt-20">Loading orders...</div>;
   }
@@ -134,6 +152,16 @@ const UsersProductStatus = () => {
                         <div className="text-sm">Status: <span className="font-medium">{order.status}</span></div>
                         <div className="text-sm">Attempts: <span className="font-medium">{order.deliveryAttempts || 0}</span></div>
                         {order.deliveredAt && <div className="text-sm">Delivered at: {new Date(order.deliveredAt).toLocaleString()}</div>}
+                        <div className="mt-2">
+                          <label className="text-xs text-gray-500 block">Expected delivery date</label>
+                          <input
+                            type="date"
+                            defaultValue={order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toISOString().slice(0,10) : ''}
+                            onChange={(e) => updateDeliveryDate(order._id, e.target.value)}
+                            className="mt-1 p-1 border rounded text-sm"
+                            disabled={updatingId === order._id}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -8,7 +8,32 @@ const OrdersPage = () => {
     axiosInstance
       .get("/cart/orders", { withCredentials: true })
       .then((res) => {
-        setOrders(res.data.orders || []);
+        const fetched = res.data.orders || [];
+        setOrders(fetched);
+
+        // If any order has adminSetEta === true and etaNotified === false,
+        // show a simple confirmation alert and acknowledge on the server.
+        fetched.forEach(async (o) => {
+          if (o.adminSetEta && !o.etaNotified) {
+            try {
+              const dateStr = o.expectedDeliveryDate
+                ? new Date(o.expectedDeliveryDate).toLocaleDateString()
+                : null;
+              // Simple confirmation to the user
+              if (dateStr) {
+                window.alert(`Your product delivery confirmed on ${dateStr}`);
+              } else {
+                window.alert(`Your delivery date has been set by admin.`);
+              }
+
+              // Acknowledge to backend so we don't show the message again
+              await axiosInstance.put(`/cart/orders/${o._id}/ack-eta`, {}, { withCredentials: true });
+            } catch (e) {
+              // swallow errors — acknowledgment is best-effort
+              console.error('ack-eta error', e);
+            }
+          }
+        });
       })
       .catch(() => setOrders([]));
   }, []);
@@ -96,6 +121,14 @@ const OrdersPage = () => {
                   >
                     {order.status.toUpperCase()}
                   </span>
+                  {order.expectedDeliveryDate && (
+                    <div className="text-sm text-gray-600 mt-2">
+                      Estimated delivery: <span className="font-medium">{new Date(order.expectedDeliveryDate).toLocaleDateString()}</span>
+                      {new Date(order.expectedDeliveryDate) > new Date() && (
+                        <span className="text-gray-500"> — in {Math.ceil((new Date(order.expectedDeliveryDate) - new Date()) / (1000*60*60*24))} days</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
