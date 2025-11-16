@@ -92,7 +92,7 @@ const ProductCard = ({ product, showBuy = false }) => {
         <img
           src={imgSrc}
           alt={product.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-scale-down transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
           onError={(e) => {
             if (!e.currentTarget.src || !e.currentTarget.src.includes("placeholder.com")) {

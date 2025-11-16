@@ -76,7 +76,7 @@ const UserProfile = () => {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <ToastContainer />
-      <h1 className="text-2xl font-bold mb-4">My Profile</h1>
+      <h1 className="text-4xl font-medium mb-4">My Profile</h1>
 
       {!editing ? (
         <div className="bg-white rounded-xl shadow p-6 space-y-4">
@@ -129,7 +129,7 @@ const UserProfile = () => {
             </button>
             <button
               onClick={() => setEditing(true)}
-              className="px-4 py-2 border rounded bg-blue-600 text-white"
+              className="px-4 py-2 border rounded bg-zinc-950 text-white"
             >
               Edit Profile
             </button>
@@ -138,33 +138,33 @@ const UserProfile = () => {
       ) : (
         <form onSubmit={submit} className="bg-white p-6 rounded-xl shadow space-y-4">
           <div>
-            <label className="text-sm text-gray-600">Username</label>
+            <label className="text-md text-zinc-800">Username</label>
             <input name="username" value={form.username} onChange={handleChange} className="w-full p-2 border rounded" />
           </div>
 
           <div>
-            <label className="text-sm text-gray-600">Email</label>
+            <label className="text-md text-zinc-800">Email</label>
             <input name="email" value={form.email} onChange={handleChange} className="w-full p-2 border rounded" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-gray-600">Phone</label>
+              <label className="text-md text-zinc-800">Phone</label>
               <input name="mobile" value={form.mobile} onChange={handleChange} className="w-full p-2 border rounded" />
             </div>
             <div>
-              <label className="text-sm text-gray-600">Gender</label>
+              <label className="text-md text-zinc-800">Gender</label>
               <input name="gender" value={form.gender} onChange={handleChange} className="w-full p-2 border rounded" />
             </div>
           </div>
 
           <div>
-            <label className="text-sm text-gray-600">Date of Birth</label>
+            <label className="text-md text-zinc-800">Date of Birth</label>
             <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} className="w-full p-2 border rounded" />
           </div>
 
           <div>
-            <label className="text-sm text-gray-600">Address</label>
+            <label className="text-md text-zinc-800">Address</label>
             <input name="address" value={form.address} onChange={handleChange} className="w-full p-2 border rounded" />
           </div>
 
@@ -180,7 +180,7 @@ const UserProfile = () => {
           </div>
 
           <div className="flex gap-3">
-            <button type="submit" disabled={saving} className="px-4 py-2 bg-blue-600 text-white rounded">{saving ? 'Saving...' : 'Save'}</button>
+            <button type="submit" disabled={saving} className="px-4 py-2 bg-zinc-900 text-white rounded hover:bg-zinc-950">{saving ? 'Saving...' : 'Save'}</button>
             <button type="button" onClick={() => setEditing(false)} className="px-4 py-2 border rounded">Cancel</button>
           </div>
         </form>

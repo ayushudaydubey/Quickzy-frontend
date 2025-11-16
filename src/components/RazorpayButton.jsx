@@ -74,7 +74,7 @@ const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, di
     <button
       onClick={handlePayment}
       disabled={disabled}
-      className={`w-full py-4 rounded-2xl text-lg font-bold ${disabled ? 'bg-gray-400 text-gray-700' : 'bg-black text-white hover:bg-gray-800'}`}
+      className={`w-full py-4 rounded-2xl text-lg font-bold ${disabled ? 'bg-gray-400 text-gray-700' : 'bg-black text-white hover:bg-zinc-900'}`}
     >
       {disabled ? 'Processing...' : `Confirm & Pay ₹${amount}`}
     </button>
