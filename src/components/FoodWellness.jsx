@@ -85,13 +85,13 @@ const FoodWellness = () => {
           <NavButton direction="left" onClick={() => scroll("left")} />
           <NavButton direction="right" onClick={() => scroll("right")} />
 
-          <div className="hidden sm:block w-[1px] h-8 bg-green-200 mx-2" />
+          <div className="hidden sm:block w-[1px] h-8 bg-gray-200 mx-2" />
 
           <button
             onClick={() => navigate("/product?category=Food & Wellness")}
             className="relative px-4 sm:px-6 py-2 bg-gradient-to-r from-zinc-900 via-black to-zinc-950 text-white text-[10px] sm:text-[11px] font-medium tracking-[0.15em] uppercase rounded-full transition-all duration-500 shadow-sm hover:shadow-xl overflow-hidden group"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-green-700 via-green-800 to-green-900 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-black to-zinc-950 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
             <span className="relative z-10 group-hover:text-white transition-colors duration-300">
@@ -112,7 +112,7 @@ const FoodWellness = () => {
             : products.map((product) => (
                 <div
                   key={product._id}
-                  className="group min-w-[220px] sm:min-w-[260px] md:min-w-[300px] mt-3 sm:mt-4 bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-green-400 transition-all duration-300 hover:scale-[1.02]"
+                  className="group min-w-[220px] sm:min-w-[260px] md:min-w-[300px] mt-3 sm:mt-4 bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-gray-400 transition-all duration-300 hover:scale-[1.02]"
                 >
                   <ProductCard product={product} showBuy={true} />
                 </div>

@@ -128,9 +128,7 @@ const HomeLiving = () => {
             : products.map((product) => (
                 <div
                   key={product._id}
-                  className="group min-w-[220px] sm:min-w-[260px] md:min-w-[300px] 
-                  mt-3 sm:mt-4 bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 
-                  hover:border-zinc-400 transition-all duration-300 hover:scale-[1.02]"
+                  className="group min-w-[220px] sm:min-w-[260px] md:min-w-[300px] mt-3 sm:mt-4 bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-300 hover:border-zinc-400 transition-all duration-300 hover:scale-[1.02]"
                 >
                   <ProductCard product={product} showBuy={true} />
                 </div>
