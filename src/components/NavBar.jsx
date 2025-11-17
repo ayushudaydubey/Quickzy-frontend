@@ -72,7 +72,7 @@ const NavBar = () => {
   };
 
   return (
-    <header className="bg-black border-b border-neutral-800 sticky top-0  z-50">
+    <header className="bg-black sticky top-0  z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Navigation Bar */}
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -103,14 +103,20 @@ const NavBar = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search products..."
-                className="w-full px-6 py-3 bg-neutral-900 text-white placeholder-neutral-500 border border-neutral-800 rounded-none focus:outline-none focus:border-white transition-colors font-light"
+                className="w-full px-6 py-3 bg-neutral-900 text-white placeholder-neutral-500 border border-neutral-800 rounded-md focus:outline-none focus:border-white transition-colors font-light"
               />
             </div>
-            
+             <button
+              type="submit"
+              className="px-8 py-3 bg-white text-black font-light  uppercase tracking-wider rounded-md hover:bg-neutral-200 transition-colors whitespace-nowrap"
+            >
+              Search
+            </button>
+
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="px-5 py-3 bg-neutral-900 text-white border border-neutral-800 rounded-none focus:outline-none focus:border-white cursor-pointer transition-colors font-light appearance-none"
+              className="px-5 py-3 bg-neutral-900 text-white border border-neutral-800 rounded-md focus:outline-none focus:border-white cursor-pointer transition-colors font-light appearance-none"
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat} className="bg-neutral-900">
@@ -119,12 +125,7 @@ const NavBar = () => {
               ))}
             </select>
             
-            <button
-              type="submit"
-              className="px-8 py-3 bg-white text-black font-light uppercase tracking-wider rounded-none hover:bg-neutral-200 transition-colors whitespace-nowrap"
-            >
-              Search
-            </button>
+           
           </form>
 
           {/* Desktop Navigation Links */}
@@ -160,7 +161,7 @@ const NavBar = () => {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="text-xs px-6 py-2 bg-transparent text-white font-light uppercase tracking-widest border border-white rounded-none hover:bg-white hover:text-black transition-all"
+                  className="text-xs px-6 py-2 bg-transparent text-white font-light uppercase tracking-widest border border-white rounded-md hover:bg-white hover:text-black transition-all"
                 >
                   Logout
                 </button>
@@ -168,7 +169,7 @@ const NavBar = () => {
             ) : (
               <Link 
                 to="/login" 
-                className="text-xs px-6 py-2.5 bg-white text-black font-light uppercase tracking-widest rounded-none hover:bg-neutral-200 transition-colors"
+                className="text-xs px-6 py-2.5 bg-white text-black font-light uppercase tracking-widest rounded-md hover:bg-neutral-200 transition-colors"
               >
                 Login
               </Link>
@@ -206,13 +207,13 @@ const NavBar = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search products..."
-                className="w-full px-4 py-3 bg-neutral-900 text-white placeholder-neutral-500 border border-neutral-800 rounded-none focus:outline-none focus:border-white transition-colors font-light"
+                className="w-full px-4 py-3 bg-neutral-900 text-white placeholder-neutral-500 border border-neutral-800 rounded-md focus:outline-none focus:border-white transition-colors font-light"
               />
               <div className="flex gap-3">
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="flex-1 px-4 py-3 bg-neutral-900 text-white border border-neutral-800 rounded-none focus:outline-none focus:border-white cursor-pointer transition-colors font-light appearance-none"
+                  className="flex-1 px-4 py-3 bg-neutral-900 text-white border border-neutral-800 rounded-md focus:outline-none focus:border-white cursor-pointer transition-colors font-light appearance-none"
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat} className="bg-neutral-900">
@@ -222,7 +223,7 @@ const NavBar = () => {
                 </select>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-white text-black font-light uppercase tracking-wider rounded-none hover:bg-neutral-200 transition-colors whitespace-nowrap"
+                  className="px-6 py-3 bg-white text-black font-light uppercase tracking-wider rounded-md hover:bg-neutral-200 transition-colors whitespace-nowrap"
                 >
                   Search
                 </button>
@@ -248,7 +249,7 @@ const NavBar = () => {
                 {user.admin && (
                   <Link 
                     to="/admin/dashboard" 
-                    className="flex items-center gap-3 px-4 py-3 text-white hover:bg-neutral-900 transition-colors rounded-none border-l-2 border-white"
+                    className="flex items-center gap-3 px-4 py-3 text-white hover:bg-neutral-900 transition-colors rounded-md border-l-2 border-white"
                   >
                     <LayoutDashboard size={20} />
                     <span className="font-light tracking-wider uppercase text-sm">Admin Dashboard</span>
@@ -283,7 +284,7 @@ const NavBar = () => {
             ) : (
               <Link 
                 to="/login" 
-                className="flex items-center justify-center gap-3 px-4 py-3 bg-white text-black hover:bg-neutral-200 transition-colors rounded-none font-light tracking-wider uppercase"
+                className="flex items-center justify-center gap-3 px-4 py-3 bg-white text-black hover:bg-neutral-200 transition-colors rounded-md font-light tracking-wider uppercase"
               >
                 Login
               </Link>
