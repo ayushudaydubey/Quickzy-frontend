@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../store/Reducers/userSlice";
 import { toast } from "react-toastify";
+import Loader from '../../components/Loader';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -123,7 +124,7 @@ const Login = () => {
               className="w-full py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 hover:scale-[1.02] transition-all disabled:opacity-50"
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Sign In"}
+              {isLoading ? <Loader inline size="xs" text="Logging in..." /> : "Sign In"}
             </button>
 
             {/* Divider */}
