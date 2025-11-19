@@ -4,7 +4,6 @@ import axiosInstance from "../../utils/axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import RazorpayButton from "../../components/RazorpayButton";
-import Loader from '../../components/Loader';
 
 const Checkout = () => {
   const { id } = useParams();
@@ -85,7 +84,10 @@ const Checkout = () => {
   if (!product || !user) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-50">
-        <Loader text="Loading checkout..." />
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 border-4 border-gray-300 border-t-black rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-700 text-sm">Loading checkout...</p>
+        </div>
       </div>
     );
   }

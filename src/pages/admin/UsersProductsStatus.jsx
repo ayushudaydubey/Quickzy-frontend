@@ -3,7 +3,6 @@ import axiosInstance from '../../utils/axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import usePagination from '../../hooks/usePagination';
-import Loader from '../../components/Loader';
 
 const STATUS_OPTIONS = [
   'pending',
@@ -90,11 +89,7 @@ const UsersProductStatus = () => {
     }
   };
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader text="Loading orders..." />
-      </div>
-    );
+    return <div className="text-center mt-20">Loading orders...</div>;
   }
 
   return (

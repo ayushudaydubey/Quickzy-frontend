@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axios";
-import Loader from '../../components/Loader';
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState(null); // null = loading
@@ -43,7 +42,7 @@ const OrdersPage = () => {
   if (orders === null) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader size="lg" />
+        <div className="animate-spin h-10 w-10 border-4 border-gray-300 border-t-black rounded-full"></div>
       </div>
     );
   }

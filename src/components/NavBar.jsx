@@ -135,27 +135,27 @@ const NavBar = () => {
                 {user.admin && (
                   <Link 
                     to="/admin/dashboard" 
-                    className="text-xs text-white hover:border-b hover:border-zinc-400 pb-1 font-light uppercase tracking-widest  transition-colors  "
+                    className="text-xs text-white font-light uppercase tracking-widest hover:text-neutral-400 transition-colors border-b border-white pb-1"
                   >
-                    Admin Dashboard
+                    Admin
                   </Link>
                 )}
                 <Link 
                   to="/orders" 
-                  className="text-xs text-white hover:border-b hover:border-zinc-400 pb-1 font-light uppercase tracking-widest  transition-colors"
+                  className="text-xs text-neutral-400 font-light uppercase tracking-widest hover:text-white transition-colors"
                 >
                   Orders
                 </Link>
-                <Link to="/cart" className="relative text-xs text-white hover:border-b hover:border-zinc-400 pb-1 font-light uppercase tracking-widest  transition-colors">
+                <Link to="/cart" className="relative text-xs text-neutral-400 font-light uppercase tracking-widest hover:text-white transition-colors">
                   Cart
                   {cartCount > 0 && (
-                    <span className="absolute -top-2 -right-3 bg-red-600 text-white  rounded-full text-xs w-5 h-5 flex items-center justify-center">{cartCount}</span>
+                    <span className="absolute -top-2 -right-3 bg-red-600 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">{cartCount}</span>
                   )}
                 </Link>
                 {/* wishlist removed */}
                 <Link 
                   to="/profile" 
-                  className="text-xs text-white hover:border-b hover:border-zinc-400 pb-1 font-light uppercase tracking-widest  transition-colors"
+                  className="text-xs text-white font-light uppercase tracking-widest hover:text-neutral-400 transition-colors"
                 >
                   {user.username || 'Profile'}
                 </Link>

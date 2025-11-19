@@ -3,8 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { loadCart } from '../../store/Reducers/cartSlice';
 import axiosInstance from '../../utils/axios';
-import { Trash2, ShoppingBag, ShoppingCart } from 'lucide-react';
-import Loader from '../../components/Loader';
+import { Trash2, ShoppingBag, Loader2, ShoppingCart } from 'lucide-react';
 
 // Helper function to extract image URL
 const getImageUrl = (prod) => {
@@ -84,7 +83,8 @@ const Cart = () => {
     if (loading || status === 'loading') {
         return (
             <div className="max-w-6xl mx-auto px-6 py-20 text-center bg-neutral-50 min-h-screen">
-                <Loader size="md" text="Loading Cart..." />
+                <Loader2 className="w-8 h-8 mx-auto animate-spin text-zinc-900" />
+                <div className="mt-4 text-zinc-700">Loading Cart...</div>
             </div>
         );
     }

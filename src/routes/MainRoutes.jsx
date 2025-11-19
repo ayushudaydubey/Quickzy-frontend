@@ -2,7 +2,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
-import Loader from '../components/Loader';
 
 const Register = lazy(() => import('../pages/user/Register'));
 const Login = lazy(() => import('../pages/user/Login'));
@@ -26,7 +25,7 @@ const PageNotFound = lazy(() => import('../pages/PageNotFound'));
 
 const MainRoutes = () => {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}>
       <Routes>
       <Route path='/' element={<Home />} />
       <Route path='/register' element={<Register />} />
