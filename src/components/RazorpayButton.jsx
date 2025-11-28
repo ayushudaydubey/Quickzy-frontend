@@ -29,10 +29,12 @@ const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, di
 
       // create order on server (amount in rupees)
       const orderRes = await axiosInstance.post('/payment/create-order', { amount, currency, meta }, { withCredentials: true });
-      const order = orderRes.data;
+      // backend returns { order, key_id }
+      const order = orderRes.data.order || orderRes.data;
+      const keyId = orderRes.data.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_EETe6chpOgdWdf';
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_EETe6chpOgdWdf',
+        key: keyId,
         amount: order.amount,
         currency: order.currency,
         name: 'Quickzy',

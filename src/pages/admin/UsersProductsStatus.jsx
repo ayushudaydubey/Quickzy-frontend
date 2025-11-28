@@ -15,6 +15,7 @@ const STATUS_OPTIONS = [
 
 const UsersProductStatus = () => {
   const [orders, setOrders] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
@@ -25,6 +26,13 @@ const UsersProductStatus = () => {
     try {
       const res = await axiosInstance.get('/admin/orders', { withCredentials: true });
       setOrders(res.data.orders || []);
+      // fetch admin notifications (cancellations/refunds)
+      try {
+        const nres = await axiosInstance.get('/admin/notifications', { withCredentials: true });
+        setNotifications(nres.data.notifications || []);
+      } catch (ne) {
+        console.warn('Failed to fetch admin notifications', ne);
+      }
     } catch (err) {
       console.error('Fetch admin orders error', err);
       toast.error('Failed to load orders. Make sure you are logged in as admin.');
@@ -45,6 +53,7 @@ const UsersProductStatus = () => {
   // apply status filter
   const filteredOrders = useMemo(() => {
     if (filterStatus === 'all') return sortedOrders;
+    if (filterStatus === 'canceled') return sortedOrders.filter(o => (o.status === 'canceled' || o.canceled));
     return sortedOrders.filter(o => o.status === filterStatus);
   }, [sortedOrders, filterStatus]);
 
@@ -88,6 +97,21 @@ const UsersProductStatus = () => {
       setUpdatingId(null);
     }
   };
+
+  const processNotification = async (notificationId) => {
+    try {
+      setUpdatingId(notificationId);
+      const res = await axiosInstance.put(`/admin/notifications/${notificationId}/process`, {}, { withCredentials: true });
+      toast.success('Marked refund processed');
+      // update local notifications
+      setNotifications((prev) => prev.map(n => (n._id === notificationId ? res.data.notification : n)));
+    } catch (err) {
+      console.error('Process notification error', err);
+      toast.error('Failed to process notification');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
   if (loading) {
     return <div className="text-center mt-20">Loading orders...</div>;
   }
@@ -97,12 +121,38 @@ const UsersProductStatus = () => {
       <ToastContainer />
       <h1 className="text-2xl font-bold mb-4">Admin Dashboard — Orders</h1>
 
+      {/* Notifications: cancellations/refunds */}
+      {notifications.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-2">Refunds / Cancellations</h2>
+          <div className="flex flex-wrap gap-3">
+            {notifications.map((n) => (
+              <div key={n._id} className="flex items-center gap-3 p-3 rounded-md border bg-white shadow-sm" style={{ minWidth: 260 }}>
+                <img src={(n.productId && Array.isArray(n.productId.images) && n.productId.images[0]) || ''} alt={n.productId?.title || 'product'} className="w-14 h-14 object-cover rounded" />
+                <div className="flex-1 text-sm">
+                  <div className="font-medium">{n.productId?.title || 'Product'}</div>
+                  <div className="text-gray-600">{n.message}</div>
+                  {n.expectedRefundDate && <div className="text-xs text-gray-500">Refund by: {new Date(n.expectedRefundDate).toLocaleDateString()}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Status filter buttons */}
       <div className="flex flex-wrap gap-3 mb-4">
         <button className={`px-3 py-1 rounded ${filterStatus === 'all' ? 'bg-black text-white' : 'border'}`} onClick={() => setFilterStatus('all')}>All</button>
         {STATUS_OPTIONS.map(s => (
           <button key={s} className={`px-3 py-1 rounded ${filterStatus === s ? 'bg-black text-white' : 'border'}`} onClick={() => setFilterStatus(s)}>{s}</button>
         ))}
+        {/* Cancelled products quick filter with pending refunds badge */}
+        <button
+          className={`px-3 py-1 rounded ${filterStatus === 'canceled' ? 'bg-red-100 text-red-700' : 'border'}`}
+          onClick={() => setFilterStatus('canceled')}
+        >
+          Cancelled ({notifications.filter(n => !n.refundProcessed).length})
+        </button>
       </div>
 
       {/* Page size selector */}
@@ -121,11 +171,12 @@ const UsersProductStatus = () => {
         <div className="text-gray-600">No orders found for this filter.</div>
       ) : (
         <div className="space-y-4">
-          {paginatedData.map((order) => {
+            {paginatedData.map((order) => {
             const product = order.productId || {};
             const user = order.userId || {};
+            const isCanceled = order.status === 'canceled' || order.canceled;
             return (
-              <div key={order._id} className="bg-white rounded-xl shadow border p-4">
+              <div key={order._id} className={`rounded-xl shadow border p-4 ${isCanceled ? 'bg-red-50 border-red-200' : 'bg-white'}`}>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <img src={(Array.isArray(product.images) && product.images[0]) || product.image} alt={product.title} loading="lazy" decoding="async" className="w-20 h-20 object-cover rounded" />
@@ -206,6 +257,23 @@ const UsersProductStatus = () => {
                         </li>
                       ))}
                     </ul>
+                  </div>
+                )}
+                {/* If canceled, show refund action if notification exists and not processed */}
+                {isCanceled && (
+                  <div className="mt-3 flex items-center gap-3">
+                    {(() => {
+                      const notif = notifications.find(n => String(n.orderId) === String(order._id));
+                      if (!notif) return <div className="text-sm text-gray-600">No refund record</div>;
+                      return (
+                        <>
+                          <div className="text-sm text-gray-700">Refund status: {notif.refundProcessed ? 'Processed' : 'Pending'}</div>
+                          {!notif.refundProcessed && (
+                            <button onClick={() => processNotification(notif._id)} disabled={updatingId === notif._id} className="ml-4 px-3 py-1 bg-red-600 text-white rounded text-sm">Mark refund processed</button>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

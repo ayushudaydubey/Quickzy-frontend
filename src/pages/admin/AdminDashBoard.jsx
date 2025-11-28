@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axiosInstance from '../../utils/axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { 
@@ -14,6 +15,20 @@ import {
 
 const AdminDashBoard = () => {
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await axiosInstance.get('/admin/notifications', { withCredentials: true });
+        if (mounted) setNotifications(res.data.notifications || []);
+      } catch (err) {
+        // silent
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const quickNavigate = (path) => {
     try {
@@ -24,6 +39,7 @@ const AdminDashBoard = () => {
   };
 
   const cards = [
+    // Cancelled Products card will be shown separately below with dynamic count
     { title: 'Products', desc: 'View, edit, and manage all product listings.', path: '/product', icon: Package },
     { title: 'Create Product', desc: 'Add a new product to the catalog.', path: '/admin/create-products', icon: PlusSquare },
     { title: 'Orders', desc: 'Review, track, and process customer orders.', path: '/orders', icon: ClipboardList },
@@ -31,6 +47,8 @@ const AdminDashBoard = () => {
     { title: 'Payments', desc: 'Review and reconcile payment transactions.', path: '/admin/payments', icon: CreditCard },
     { title: 'Product Status', desc: 'Track and update user product submission status.', path: '/admin/product-status', icon: CheckCircle },
   ];
+
+  const pendingCancelledCount = notifications.filter(n => !n.refundProcessed).length;
 
   return (
     // Outer container: Soft gray background for contrast against white cards
@@ -55,6 +73,19 @@ const AdminDashBoard = () => {
 
         {/* Dashboard Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          {/* Cancelled Products card */}
+          <div className="bg-white rounded-xl shadow-lg transition-all duration-300 p-8 flex flex-col border border-zinc-200">
+            <div className="flex items-start mb-4">
+              <Package className="w-8 h-8 text-zinc-900 flex-shrink-0 mr-4" strokeWidth={2} />
+              <h2 className="text-2xl font-bold text-zinc-900 pt-0.5">Cancelled Products</h2>
+            </div>
+            <p className="text-base text-zinc-600 mb-8 flex-grow">{pendingCancelledCount} cancelled items requiring refund processing.</p>
+            <div className="flex gap-4 pt-4 border-t border-zinc-100">
+              <button onClick={() => quickNavigate('/admin/product-status')} className="flex-1 flex items-center justify-center px-5 py-3 bg-red-600 text-white text-base font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-md">Go Now</button>
+              <Link to={'/admin/product-status'} className="w-1/3 flex items-center justify-center px-4 py-3 border-2 border-zinc-300 text-zinc-900 text-sm font-medium rounded-lg hover:bg-zinc-100 transition-colors" title="Open Cancelled Products page"><ArrowRight className="w-5 h-5" strokeWidth={2.5} /></Link>
+            </div>
+          </div>
+
           {cards.map((c) => (
             <div 
               key={c.title} 

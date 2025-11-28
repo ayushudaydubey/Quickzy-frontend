@@ -77,7 +77,7 @@ const OrdersPage = () => {
               {/* PRODUCT IMAGE */}
               <div className="flex-shrink-0 mx-auto sm:mx-0">
                 <img
-                  src={product?.image}
+                  src={(Array.isArray(product?.images) && product.images[0]) || product?.image || ''}
                   alt={product?.title}
                   className="w-32 h-32 sm:w-36 sm:h-36 object-cover rounded-xl border shadow-sm"
                 />
@@ -129,6 +129,39 @@ const OrdersPage = () => {
                       )}
                     </div>
                   )}
+                </div>
+                {/* ACTIONS */}
+                <div className="pt-4">
+                  {(() => {
+                    // determine if order can be canceled: within 24 hours and not shipped/delivered/canceled
+                    const createdAt = order.createdAt ? new Date(order.createdAt).getTime() : null;
+                    const withinWindow = createdAt ? (Date.now() - createdAt) <= (24 * 60 * 60 * 1000) : false;
+                    const forbidden = ['shipped', 'out-for-delivery', 'delivered', 'canceled'];
+                    const canCancel = withinWindow && !forbidden.includes(order.status);
+
+                    return canCancel ? (
+                      <button
+                        onClick={async () => {
+                          try {
+                            if (!window.confirm('Are you sure you want to cancel this order?')) return;
+                            const res = await axiosInstance.put(`/cart/orders/${order._id}/cancel`, { reason: 'Canceled from user orders page' }, { withCredentials: true });
+                            // update local state
+                            setOrders((prev) => prev.map((o) => (o._id === order._id ? res.data.order : o)));
+                            window.alert('Order canceled successfully. Admin will process refund within 5-7 days.');
+                          } catch (err) {
+                            console.error('Cancel failed', err);
+                            const msg = err?.response?.data?.message || err?.response?.data?.error || err.message || 'Cancellation failed';
+                            window.alert(msg);
+                          }
+                        }}
+                        className="mt-2 inline-block bg-red-600 text-white px-4 py-2 rounded-md text-sm hover:bg-red-700"
+                      >
+                        Cancel Order
+                      </button>
+                    ) : (
+                      null
+                    );
+                  })()}
                 </div>
               </div>
             </div>
