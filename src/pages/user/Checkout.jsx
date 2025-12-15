@@ -67,8 +67,39 @@ const Checkout = () => {
         { withCredentials: true }
       );
 
-      toast.success("Payment successful!");
-      setTimeout(() => navigate("/orders"), 1200);
+      const res = await axiosInstance.post(
+        "/cart/create",
+        {
+          productId: id,
+          quantity,
+          customer: {
+            name: user.username,
+            address: user.address,
+            phone: user.mobile,
+          },
+          total: Number(totalPrice),
+          payment: {
+            razorpay_order_id: r.razorpay_order_id,
+            razorpay_payment_id: r.razorpay_payment_id,
+            razorpay_signature: r.razorpay_signature,
+          },
+        },
+        { withCredentials: true }
+      );
+
+      const createdOrder = res.data?.order;
+      let message = 'Payment successful!';
+      if (createdOrder && createdOrder.expectedDeliveryDate) {
+        const eta = new Date(createdOrder.expectedDeliveryDate);
+        message += ` Estimated delivery: ${eta.toDateString()} (Quickzy)`;
+      } else {
+        // fallback: estimate 3 days
+        const eta = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+        message += ` Estimated delivery: ${eta.toDateString()} (Quickzy)`;
+      }
+
+      toast.success(message);
+      setTimeout(() => navigate("/orders"), 1400);
     } catch (err) {
       toast.error("Order save failed");
     } finally {
