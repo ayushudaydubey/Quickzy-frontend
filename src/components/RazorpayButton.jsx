@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 import axiosInstance from '../utils/axios';
 
 const loadRazorpayScript = () => {
@@ -29,9 +30,21 @@ const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, di
 
       // create order on server (amount in rupees)
       const orderRes = await axiosInstance.post('/payment/create-order', { amount, currency, meta }, { withCredentials: true });
-      // backend returns { order, key_id }
+      // backend may return { order, key_id } or the order directly
       const order = orderRes.data.order || orderRes.data;
-      const keyId = orderRes.data.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_EETe6chpOgdWdf';
+      const keyId = orderRes.data?.key_id || order.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+      if (!keyId) {
+        console.error('Razorpay: missing key_id', { orderRes, order });
+        toast.error('Payment configuration error: missing Razorpay key. Contact support.');
+        return;
+      }
+
+      if (!order || !order.amount) {
+        console.error('Razorpay: invalid order response', { orderRes, order });
+        toast.error('Payment initialization failed: invalid order from server.');
+        return;
+      }
 
       const options = {
         key: keyId,
@@ -61,13 +74,31 @@ const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, di
         theme: { color: 'black' },
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (resp) {
-        onError && onError(resp);
-      });
-      rzp.open();
+      try {
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (resp) {
+          onError && onError(resp);
+        });
+        rzp.open();
+      } catch (e) {
+        console.error('Razorpay open error', e);
+        toast.error('Unable to open payment window. Try disabling browser extensions (adblock) or use another browser.');
+        onError && onError(e);
+      }
     } catch (err) {
       console.error('Razorpay error:', err);
+      if (err?.response) {
+        console.error('Server response:', err.response.status, err.response.data);
+      }
+      // show a helpful toast with status when available
+      const status = err?.response?.status;
+      const message = err?.response?.data?.error || err?.message || 'Payment initialization failed';
+        // If the Razorpay script failed to load (commonly blocked by adblockers), show a clear toast
+        if (message.includes('Razorpay script failed to load') || message.toLowerCase().includes('checkout not available')) {
+          toast.error('Payment unavailable — your browser or an extension may be blocking Razorpay. Disable adblocker or try another browser.');
+        } else {
+          toast.error(`Payment error${status ? ' (' + status + ')' : ''}: ${message}`);
+        }
       onError && onError(err);
     }
   };

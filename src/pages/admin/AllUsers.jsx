@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../utils/axios';
 import usePagination from '../../hooks/usePagination';
+import Loader from '../../components/Loader';
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -42,9 +43,8 @@ const AllUsers = () => {
         </header>
 
         {loading ? (
-          <div className="flex items-center space-x-3 text-zinc-700 p-6 bg-white rounded-xl shadow-md">
-            <div className="w-5 h-5 border-3 border-zinc-900 border-t-transparent rounded-full animate-spin"></div>
-            <div>Loading user list...</div>
+          <div className="p-6">
+            <Loader text="Loading user list..." />
           </div>
         ) : error ? (
           <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">{error}</div>

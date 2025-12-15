@@ -1,6 +1,7 @@
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { loginAPI, registerAPI, getUserProfileAPI } from "../Reducers/userApi";
+import axiosInstance from '../../utils/axios';
 
 const initialState = {
   user: null,
@@ -72,6 +73,14 @@ const userSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token || null;
         state.status = 'success';
+        // persist token and set axios default header
+        try {
+          const t = action.payload.token;
+          if (t) {
+            localStorage.setItem('token', t);
+            axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${t}`;
+          }
+        } catch (e) {}
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = 'failed';
@@ -87,6 +96,13 @@ const userSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token || null;
         state.status = 'success';
+        try {
+          const t = action.payload.token;
+          if (t) {
+            localStorage.setItem('token', t);
+            axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${t}`;
+          }
+        } catch (e) {}
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.status = 'failed';

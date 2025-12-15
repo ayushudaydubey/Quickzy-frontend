@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 import { registerUser } from "../../store/Reducers/userSlice";
 
 const Register = () => {
@@ -12,8 +13,16 @@ const Register = () => {
   const RegisterHandler = (userData) => {
     dispatch(registerUser({ ...userData, admin: false, cart: [] }))
       .unwrap()
-      .then(() => navigate("/login"))
-      .catch((err) => console.error("Registration failed:", err));
+      .then(() => {
+        toast.success("Registration successful! Redirecting to login...");
+        setTimeout(() => navigate("/login"), 1500);
+      })
+      .catch((err) => {
+        // Display backend validation error as toast
+        const errorMessage = err?.error || err?.message || "Registration failed";
+        toast.error(errorMessage);
+        console.error("Registration failed:", err);
+      });
   };
 
   return (

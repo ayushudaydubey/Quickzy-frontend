@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axios';
+import Loader from '../components/Loader';
 
 const PrivateRoute = ({ children, adminOnly = false }) => {
   const [isAllowed, setIsAllowed] = useState(null);
@@ -9,7 +10,8 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
     const checkAccess = async () => {
       try {
         const res = await axiosInstance.get('/me', { withCredentials: true });
-        const user = res.data;
+          // normalize response shape: backend may return { user: {...} } or the user object directly
+          const user = res.data.user || res.data;
 
         if (adminOnly && !user.admin) {
           setIsAllowed(false);
@@ -27,7 +29,7 @@ const PrivateRoute = ({ children, adminOnly = false }) => {
   const location = useLocation();
 
   if (isAllowed === null) {
-    return <p className="text-center mt-10">Checking access...</p>;
+    return <div className="min-h-screen flex items-center justify-center"><Loader text="Checking access..." /></div>;
   }
 
   if (isAllowed) return children;

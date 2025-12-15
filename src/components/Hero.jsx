@@ -138,7 +138,7 @@ const Hero = () => {
       </div>
 
       {/* CUSTOM CSS */}
-      <style jsx>{`
+      <style>{`
         @keyframes zoom {
           0% { transform: scale(1.0); }
           100% { transform: scale(1.05); }
@@ -163,6 +163,7 @@ const Hero = () => {
           animation: slideUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
         }
       `}</style>
+      
     </section>
   );
 };

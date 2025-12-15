@@ -14,4 +14,18 @@ const axiosInstance = axios.create({
   },
 });
 
+// Attach Authorization header from localStorage if available (Bearer token)
+axiosInstance.interceptors.request.use((config) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (e) {
+    // ignore
+  }
+  return config;
+});
+
 export default axiosInstance;

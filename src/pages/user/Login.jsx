@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../store/Reducers/userSlice";
 import { toast } from "react-toastify";
+import Loader from '../../components/Loader';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,7 +28,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      // Show first validation error as toast
+      const firstError = Object.values(errors)[0];
+      if (firstError) toast.error(firstError);
+      return;
+    }
     try {
       const result = await dispatch(loginUser({ email, password })).unwrap();
       toast.success("Login successful");
@@ -35,7 +41,9 @@ const Login = () => {
         result.user?.role === "admin" || result.user?.admin === true;
       navigate(isAdmin ? "/admin/dashboard" : redirect, { replace: true });
     } catch (err) {
-      toast.error(err?.error || "Invalid credentials");
+      // Display backend validation error as toast
+      const errorMessage = err?.error || err?.message || "Invalid credentials";
+      toast.error(errorMessage);
     }
   };
 
@@ -123,7 +131,7 @@ const Login = () => {
               className="w-full py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 hover:scale-[1.02] transition-all disabled:opacity-50"
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Sign In"}
+              {isLoading ? <Loader inline size="xs" text="Logging in..." /> : "Sign In"}
             </button>
 
             {/* Divider */}
