@@ -68,7 +68,7 @@ const OrdersPage = () => {
 
       <div className="space-y-6">
         {orders.map((order, i) => {
-          const product = order.productId;
+          const product = order.product;
 
           return (
             <div
@@ -78,9 +78,12 @@ const OrdersPage = () => {
               {/* PRODUCT IMAGE */}
               <div className="flex-shrink-0 mx-auto sm:mx-0">
                 <img
-                  src={product?.image}
+                  src={product?.images?.[0] || "https://via.placeholder.com/300?text=No+Image"}
                   alt={product?.title}
                   className="w-32 h-32 sm:w-36 sm:h-36 object-cover rounded-xl border shadow-sm"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/300?text=No+Image";
+                  }}
                 />
               </div>
 
