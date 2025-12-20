@@ -143,22 +143,28 @@ const AdminProducts = () => {
     setProducts([]);
   }, []);
 
-  // onSubmit logic (unchanged)
-  const onSubmit = async (data) => {
-    try {
-      const formData = new FormData();
-      formData.append('title', data.title);
-      formData.append('description', data.description);
-      formData.append('price', data.price);
-      // only set category when creating a new product; prevent changing category during edit
-      if (!editingId) {
-        formData.append('category', data.category || 'Other');
-      }
-      if (data.images && data.images.length > 0) {
-        for (let i = 0; i < data.images.length; i++) {
-          formData.append('images', data.images[i]);
-        }
-      }
+// onSubmit logic
+  const onSubmit = async (data) => {
+    try {
+      // Validate images for create mode
+      if (!editingId && (!data.images || data.images.length === 0)) {
+        toast.error('At least one image is required for new products.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('price', data.price);
+      // allow category to be updated in both create and edit modes
+      formData.append('category', data.category || 'Other');
+      
+      // Only append images if they exist
+      if (data.images && data.images.length > 0) {
+        for (let i = 0; i < data.images.length; i++) {
+          formData.append('images', data.images[i]);
+        }
+      }
 
       if (editingId) {
         // For update: send FormData (supports optional new images)
@@ -268,11 +274,10 @@ const AdminProducts = () => {
             className="w-full p-3 border border-zinc-300 rounded-lg focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none transition-colors" 
           />
 
-          {/* Category Dropdown (disabled while editing) */}
-          <select 
-            {...register('category', { required: true })} 
-            className={`w-full p-3 border rounded-lg focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none transition-colors ${editingId ? 'bg-zinc-100 text-zinc-600' : 'border-zinc-300'}`}
-            disabled={!!editingId}
+{/* Category Dropdown (now editable during updates) */}
+          <select 
+            {...register('category', { required: true })} 
+            className="w-full p-3 border border-zinc-300 rounded-lg focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 focus:outline-none transition-colors"
           >
             <option value="">-- Select Category --</option>
             <option value="Fashion">Fashion / Lifestyle</option>
