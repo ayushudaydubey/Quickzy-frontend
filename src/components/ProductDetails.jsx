@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import axiosInstance from "../utils/axios";
 import ProductCard from "./ProductCard";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user.user);
 
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -44,6 +47,17 @@ const ProductDetails = () => {
 
     return () => (mounted = false);
   }, [id]);
+
+  // Handle Buy Now - redirect to login if not authenticated
+  const handleBuyNow = (e) => {
+    if (!user) {
+      // User not logged in, redirect to login with return path
+      navigate(`/login?redirect=${encodeURIComponent(`/checkout/${id}?quantity=1`)}`);
+      return;
+    }
+    // User is logged in, proceed to checkout
+    navigate(`/checkout/${id}`, { state: { quantity: 1 } });
+  };
 
   // Cart/checkout feature removed; wishlist remains only
 
@@ -156,7 +170,7 @@ const ProductDetails = () => {
               )}
 
               <button
-                onClick={() => navigate(`/checkout/${id}`, { state: { quantity: 1 } })}
+                onClick={handleBuyNow}
                 className="px-8 py-4 bg-zinc-900 text-white rounded-xl font-semibold hover:bg-zinc-800 transition-transform duration-300 hover:scale-105 shadow-md"
               >
                 Buy Now

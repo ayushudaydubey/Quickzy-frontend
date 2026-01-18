@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import RazorpayButton from "../../components/RazorpayButton";
 import Loader from '../../components/Loader';
+import { validateCheckoutDetails, getMissingFieldsMessage } from "../../utils/checkoutValidation";
 
 const Checkout = () => {
   const { id } = useParams();
@@ -21,6 +22,7 @@ const Checkout = () => {
   );
 
   const [submitting, setSubmitting] = useState(false);
+  const [detailsValidation, setDetailsValidation] = useState({ isValid: false, missingFields: [] });
 
   const totalPrice = product ? (product.price * quantity).toFixed(2) : "0.00";
 
@@ -36,7 +38,13 @@ const Checkout = () => {
   useEffect(() => {
     axiosInstance
       .get("/profile", { withCredentials: true })
-      .then((res) => setUser(res.data.user))
+      .then((res) => {
+        const userData = res.data.user || res.data;
+        setUser(userData);
+        // Validate details whenever user data is loaded/updated
+        const validation = validateCheckoutDetails(userData);
+        setDetailsValidation(validation);
+      })
       .catch(() => {
         toast.error("Please log in first");
         navigate("/login");
@@ -105,6 +113,16 @@ const Checkout = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  /* ------------------- Handle incomplete details ------------------- */
+  const handleIncompleteDetails = () => {
+    const message = getMissingFieldsMessage(detailsValidation.missingFields);
+    toast.error(message);
+    // Optionally redirect to profile to edit details
+    setTimeout(() => {
+      navigate("/profile");
+    }, 2000);
   };
 
   /* ------------------- Razorpay error ------------------- */
@@ -260,6 +278,14 @@ const Checkout = () => {
 
             {/* Payment Button */}
             <div className="bg-white rounded-xl p-6 shadow-sm border">
+              {!detailsValidation.isValid && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">
+                    <strong>Complete Your Profile:</strong> {getMissingFieldsMessage(detailsValidation.missingFields)}
+                  </p>
+                </div>
+              )}
+              
               <RazorpayButton
                 amount={Number(totalPrice)}
                 currency="INR"
@@ -274,7 +300,8 @@ const Checkout = () => {
                 }}
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
-                disabled={submitting}
+                disabled={submitting || !detailsValidation.isValid}
+                onDisabledClick={!detailsValidation.isValid ? handleIncompleteDetails : null}
               />
 
               <p className="text-xs text-gray-500 text-center mt-3">

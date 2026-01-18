@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const isLocal = import.meta.env.MODE === 'development';
 
-
 const axiosInstance = axios.create({
   baseURL: isLocal
     ? 'http://localhost:3000'
@@ -14,18 +13,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Attach Authorization header from localStorage if available (Bearer token)
-axiosInstance.interceptors.request.use((config) => {
-  try {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  } catch (e) {
-    // ignore
-  }
-  return config;
-});
+// Token is automatically sent via httpOnly cookies with withCredentials: true
+// No need to manually add Authorization header from localStorage
 
 export default axiosInstance;

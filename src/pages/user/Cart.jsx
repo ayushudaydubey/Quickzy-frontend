@@ -60,7 +60,7 @@ const Cart = () => {
             setLoading(true);
             try {
                 await dispatch(loadCart()).unwrap();
-            } catch (err) {}
+            } catch (err) { }
             if (mounted) setLoading(false);
         };
 
@@ -141,8 +141,8 @@ const Cart = () => {
                                     alt={p.title}
                                     className="w-full h-full object-cover"
                                     onError={(e) =>
-                                        (e.currentTarget.src =
-                                            'https://placehold.co/120x100/F0F0F0/333333?text=No+Image')
+                                    (e.currentTarget.src =
+                                        'https://placehold.co/120x100/F0F0F0/333333?text=No+Image')
                                     }
                                 />
                             </div>
@@ -210,10 +210,7 @@ const Cart = () => {
                     Continue Shopping
                 </button>
 
-                <div className="order-1 sm:order-2 text-base text-zinc-600 p-2 bg-white rounded-lg shadow-inner">
-                    <span className="font-semibold">Note:</span> Purchase is
-                    done per item using the 'Buy Now' button.
-                </div>
+
             </div>
         </div>
     );

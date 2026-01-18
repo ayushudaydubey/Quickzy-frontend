@@ -20,9 +20,12 @@ const loadRazorpayScript = () => {
   });
 };
 
-const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, disabled = false }) => {
+const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, disabled = false, onDisabledClick }) => {
   const handlePayment = async () => {
-    if (disabled) return;
+    if (disabled) {
+      onDisabledClick?.();
+      return;
+    }
     try {
       // ensure checkout script is loaded
       await loadRazorpayScript();
@@ -107,9 +110,14 @@ const RazorpayButton = ({ amount, currency = 'INR', onSuccess, onError, meta, di
     <button
       onClick={handlePayment}
       disabled={disabled}
-      className={`w-full py-4 rounded-2xl text-lg font-bold ${disabled ? 'bg-gray-400 text-gray-700' : 'bg-black text-white hover:bg-zinc-900'}`}
+      className={`w-full py-4 rounded-2xl text-lg font-bold transition-all duration-200 ${
+        disabled
+          ? 'bg-gray-300 text-gray-600 cursor-not-allowed opacity-60'
+          : 'bg-black text-white hover:bg-zinc-900 active:scale-95 cursor-pointer'
+      }`}
+      title={disabled ? 'Please complete your profile details first' : 'Proceed to payment'}
     >
-      {disabled ? 'Processing...' : `Confirm & Pay ₹${amount}`}
+      {disabled ? '⚠ Complete Your Details' : `Confirm & Pay ₹${amount}`}
     </button>
   );
 };

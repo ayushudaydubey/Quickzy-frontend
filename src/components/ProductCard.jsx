@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { ShoppingCart, Zap, Image as ImageIcon } from "lucide-react"; 
 import { addToCart, loadCart } from "../store/Reducers/cartSlice";
@@ -15,6 +15,7 @@ const truncateWords = (text, limit = 15) => {
 const ProductCard = ({ product, showBuy = false }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
 
   const handleCardClick = () => {
     navigate(`/product/${product._id}`);
@@ -22,7 +23,13 @@ const ProductCard = ({ product, showBuy = false }) => {
 
   const handleBuyNow = (e) => {
     e.stopPropagation();
-    navigate(`/product/${product._id}`, { state: { quantity: 1 } });
+    if (!user) {
+      // User not logged in, redirect to login with return path to checkout
+      navigate(`/login?redirect=${encodeURIComponent(`/checkout/${product._id}?quantity=1`)}`);
+      return;
+    }
+    // User is logged in, proceed to checkout
+    navigate(`/checkout/${product._id}`, { state: { quantity: 1 } });
   };
 
   const handleAddToCart = async (e) => {
