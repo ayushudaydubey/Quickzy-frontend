@@ -6,7 +6,7 @@ import Technology from '../components/TechnologyGadget';
 import FoodWellness from '../components/FoodWellness';
 import Beauty from '../components/Beauty';
 import HomeLiving from '../components/HomeLiving';
-import Accessories from '../components/assesoires';
+import Accessories from '../components/Assesoires';
 import Other from '../components/Other';
 import Hero from '../components/Hero';
 
