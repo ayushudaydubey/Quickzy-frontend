@@ -41,10 +41,14 @@ export const loadUser = createAsyncThunk(
   'user/loadUser',
   async (_, { rejectWithValue }) => {
     try {
+      console.log('[loadUser] Attempting to load user from /me endpoint...');
       const user = await getUserProfileAPI();
+      console.log('[loadUser] User loaded successfully:', user);
       return user;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to load user';
+      console.error('[loadUser] Error:', errorMessage, error);
+      return rejectWithValue(errorMessage);
     }
   }
 );
