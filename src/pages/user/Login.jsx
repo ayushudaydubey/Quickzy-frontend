@@ -47,14 +47,17 @@ const Login = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    const backend = import.meta.env.VITE_API_URL || "http://localhost:3000";
-    const target = redirect || "/";
-    const url = `${backend.replace(/\/$/, "")}/auth/google?redirect=${encodeURIComponent(
-      target
-    )}`;
-    window.location.href = url;
-  };
+const handleGoogleLogin = () => {
+  const backend =
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://quickzy-backend.onrender.com";
+
+  const target = redirect || "/";
+  const url = `${backend}/auth/google?redirect=${encodeURIComponent(target)}`;
+  window.location.href = url;
+};
+
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-black text-white">
