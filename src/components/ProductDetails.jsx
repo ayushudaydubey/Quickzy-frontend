@@ -1,20 +1,47 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import axiosInstance from "../utils/axios";
+import { addToCart, loadCart } from "../store/Reducers/cartSlice";
 import ProductCard from "./ProductCard";
+import {
+  ArrowLeft,
+  ChevronRight,
+  Truck,
+  ShieldCheck,
+  RotateCcw,
+  ShoppingCart,
+  Zap,
+  ZoomIn,
+  X,
+  ChevronLeft,
+  Check
+} from "lucide-react";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
 
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [addingToCart, setAddingToCart] = useState(false);
   const [message, setMessage] = useState("");
+
+  const getEstimatedDeliveryDate = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 3);
+    return date.toLocaleDateString("en-IN", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -29,8 +56,8 @@ const ProductDetails = () => {
         setProduct(data);
         setSelectedImage(
           Array.isArray(data.images) && data.images.length > 0
-            ? data.images[0]
-            : data.image || ""
+            ? (typeof data.images[0] === "string" ? data.images[0] : data.images[0]?.url || data.images[0]?.secure_url || "")
+            : typeof data.image === "string" ? data.image : data.image?.url || ""
         );
 
         if (data.category) {
@@ -48,40 +75,33 @@ const ProductDetails = () => {
     return () => (mounted = false);
   }, [id]);
 
-  // Handle Buy Now - redirect to login if not authenticated
-  const handleBuyNow = (e) => {
-    if (!user) {
-      // User not logged in, redirect to login with return path
-      navigate(`/login?redirect=${encodeURIComponent(`/checkout/${id}?quantity=1`)}`);
-      return;
+  const getImages = () => {
+    if (!product) return [];
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      return product.images.map((img) =>
+        typeof img === "string" ? img : img?.url || img?.secure_url || img?.src || ""
+      ).filter(Boolean);
     }
-    // User is logged in, proceed to checkout
-    navigate(`/checkout/${id}`, { state: { quantity: 1 } });
+    if (product.image) {
+      const url = typeof product.image === "string" ? product.image : product.image?.url || product.image?.secure_url || "";
+      return url ? [url] : [];
+    }
+    return [];
   };
 
-  // Cart/checkout feature removed; wishlist remains only
-
-  const getImages = () =>
-    Array.isArray(product?.images)
-      ? product.images
-      : product?.image
-      ? [product.image]
-      : [];
+  const imagesList = getImages();
 
   const showNext = useCallback(() => {
-    const imgs = getImages();
-    if (!imgs.length) return;
-    const next = (imgs.indexOf(selectedImage) + 1) % imgs.length;
-    setSelectedImage(imgs[next]);
-  }, [selectedImage, product]);
+    if (!imagesList.length) return;
+    const next = (imagesList.indexOf(selectedImage) + 1) % imagesList.length;
+    setSelectedImage(imagesList[next]);
+  }, [selectedImage, imagesList]);
 
   const showPrev = useCallback(() => {
-    const imgs = getImages();
-    if (!imgs.length) return;
-    const prev =
-      (imgs.indexOf(selectedImage) - 1 + imgs.length) % imgs.length;
-    setSelectedImage(imgs[prev]);
-  }, [selectedImage, product]);
+    if (!imagesList.length) return;
+    const prev = (imagesList.indexOf(selectedImage) - 1 + imagesList.length) % imagesList.length;
+    setSelectedImage(imagesList[prev]);
+  }, [selectedImage, imagesList]);
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -94,147 +114,391 @@ const ProductDetails = () => {
     return () => window.removeEventListener("keydown", keyHandler);
   }, [isModalOpen, showNext, showPrev]);
 
+  // Handle Buy Now
+  const handleBuyNow = () => {
+    if (!user) {
+      navigate(`/login?redirect=${encodeURIComponent(`/checkout/${id}?quantity=${quantity}`)}`);
+      return;
+    }
+    navigate(`/checkout/${id}`, { state: { quantity } });
+  };
+
+  // Handle Add To Cart
+  const handleAddToCart = async () => {
+    if (!user) {
+      navigate(`/login?redirect=${encodeURIComponent(`/product/${id}`)}`);
+      return;
+    }
+    setAddingToCart(true);
+    try {
+      await dispatch(addToCart(product._id)).unwrap();
+      await dispatch(loadCart()).unwrap().catch(() => {});
+      toast.success(`${product.title} added to your cart`);
+    } catch (err) {
+      toast.error("Failed to add product to cart");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
   if (!product) {
     return (
-      <div className="min-h-screen bg-white flex justify-center items-center text-zinc-900">
-        <div className="text-center space-y-4">
-          <div className="w-14 h-14 border-4 border-zinc-900 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-xl">{message || "Loading product..."}</p>
+      <div className="min-h-[75vh] bg-zinc-50 flex justify-center items-center text-zinc-900">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-sm font-medium text-zinc-600">{message || "Loading product..."}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 px-4 py-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="rounded-2xl shadow-xl bg-white overflow-hidden border border-zinc-200">
-          <div className="flex flex-col lg:flex-row">
-            {/* ---------- Left: Images ---------- */}
-            <div className="lg:w-1/2 p-4 flex flex-col items-center">
-              <img
-                src={selectedImage}
-                alt={product.title}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-[480px] object-cover rounded-xl cursor-pointer transition-transform duration-300 hover:scale-105"
-                onClick={() => setIsModalOpen(true)}
-                onError={(e) => (e.target.src = "/fallback.jpg")}
-              />
-              <div className="flex gap-2 mt-4 overflow-x-auto">
-                {getImages().map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(img)}
-                    className={`border-2 rounded-lg p-0.5 transition-all duration-200 ${
-                      img === selectedImage
-                        ? "border-zinc-900"
-                        : "border-transparent hover:border-zinc-400"
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`thumb-${idx}`}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-16 w-16 object-cover rounded-md"
-                      onError={(e) => (e.target.src = "/fallback.jpg")}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
+    <div className="min-h-screen bg-zinc-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* ================= BREADCRUMBS ================= */}
+        <div className="flex items-center justify-between gap-4 pb-2">
+          <div className="flex items-center gap-1.5 text-xs text-zinc-500 overflow-x-auto whitespace-nowrap">
+            <Link to="/" className="hover:text-zinc-900 transition-colors">
+              Home
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+            {product.category && (
+              <>
+                <Link
+                  to={`/product?category=${encodeURIComponent(product.category)}`}
+                  className="hover:text-zinc-900 transition-colors"
+                >
+                  {product.category}
+                </Link>
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+              </>
+            )}
+            <span className="text-zinc-800 font-medium truncate max-w-[200px] sm:max-w-xs">
+              {product.title}
+            </span>
+          </div>
 
-            {/* ---------- Right: Details ---------- */}
-            <div className="lg:w-1/2 p-8 flex flex-col justify-center space-y-8">
-              <div>
-                <h1 className="text-4xl lg:text-5xl font-extrabold mb-4">
-                  {product.title}
-                </h1>
-                <p className="text-zinc-700 text-lg leading-relaxed">
-                  {product.description}
-                </p>
-                <div className="flex items-center gap-4 mt-6">
-                  <span className="text-4xl font-bold text-zinc-900">
-                    ₹ {product.price}
-                  </span>
-                  <div className="h-6 w-px bg-zinc-300"></div>
-                  <span className="text-zinc-500 text-sm">Premium Quality</span>
-                </div>
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-1 text-xs font-medium text-zinc-600 hover:text-zinc-900 bg-white border border-zinc-200 px-3 py-1.5 rounded-lg hover:bg-zinc-100 transition-colors shrink-0 cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back</span>
+          </button>
+        </div>
+
+        {/* ================= MAIN PRODUCT CARD ================= */}
+        <div className="bg-white rounded-2xl border border-zinc-200 shadow-xs p-6 sm:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            
+            {/* ---------- Left Column: Images (6 cols) ---------- */}
+            <div className="lg:col-span-6 space-y-4">
+              {/* Main Showcase Image */}
+              <div className="relative group w-full aspect-square rounded-2xl overflow-hidden bg-zinc-100 border border-zinc-200 flex items-center justify-center">
+                <img
+                  src={selectedImage || "https://placehold.co/600x600/F4F4F5/71717A?text=No+Image"}
+                  alt={product.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                  onClick={() => setIsModalOpen(true)}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://placehold.co/600x600/F4F4F5/71717A?text=No+Image";
+                  }}
+                />
+
+                {/* Zoom Hint Icon */}
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="absolute bottom-3 right-3 p-2 rounded-lg bg-white/90 hover:bg-white text-zinc-800 shadow-xs border border-zinc-200 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  title="Click to zoom image"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+
+                {/* Left/Right controls if multiple images */}
+                {imagesList.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showPrev();
+                      }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 hover:bg-white text-zinc-800 shadow-xs border border-zinc-200 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showNext();
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 hover:bg-white text-zinc-800 shadow-xs border border-zinc-200 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
               </div>
 
-              {message && (
-                <div className="bg-red-100 border border-red-300 rounded-xl p-4 text-red-700">
-                  {message}
+              {/* Thumbnails Row */}
+              {imagesList.length > 1 && (
+                <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbarHide">
+                  {imagesList.map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedImage(img)}
+                      className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border transition-all cursor-pointer ${
+                        img === selectedImage
+                          ? "border-zinc-900 ring-2 ring-zinc-900/10 shadow-xs"
+                          : "border-zinc-200 hover:border-zinc-400 opacity-75 hover:opacity-100"
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`thumbnail-${idx}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "https://placehold.co/100x100/F4F4F5/71717A?text=No+Image";
+                        }}
+                      />
+                    </button>
+                  ))}
                 </div>
               )}
-
-              <button
-                onClick={handleBuyNow}
-                className="px-8 py-4 bg-zinc-900 text-white rounded-xl font-semibold hover:bg-zinc-800 transition-transform duration-300 hover:scale-105 shadow-md"
-              >
-                Buy Now
-              </button>
             </div>
+
+            {/* ---------- Right Column: Product Details (6 cols) ---------- */}
+            <div className="lg:col-span-6 space-y-6">
+              
+              {/* Header Badges & Title */}
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  {product.category && (
+                    <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-700 bg-zinc-100 border border-zinc-200 px-2.5 py-0.5 rounded-md">
+                      {product.category}
+                    </span>
+                  )}
+                  <span className="text-[11px] font-medium text-zinc-700 bg-zinc-100 border border-zinc-200 px-2.5 py-0.5 rounded-md flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-900"></span>
+                    In Stock • Ready to Dispatch
+                  </span>
+                </div>
+
+                <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-zinc-900 leading-tight">
+                  {product.title}
+                </h1>
+              </div>
+
+              {/* Price Block */}
+              <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 flex items-baseline justify-between">
+                <div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl sm:text-3xl font-semibold text-zinc-900">
+                      ₹{Number(product.price).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <span className="text-xs text-zinc-500 font-normal">
+                    Inclusive of all taxes & free shipping
+                  </span>
+                </div>
+                <span className="text-xs font-medium text-zinc-700 bg-zinc-200/80 border border-zinc-300 px-2.5 py-1 rounded-md">
+                  Premium Quality
+                </span>
+              </div>
+
+              {/* Product Description */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+                  Description
+                </h4>
+                <p className="text-sm text-zinc-600 leading-relaxed font-normal">
+                  {product.description || "No description provided for this product."}
+                </p>
+              </div>
+
+              {/* Quantity Selector */}
+              <div className="flex items-center gap-3 pt-2 border-t border-zinc-100">
+                <span className="text-xs font-medium text-zinc-700">Quantity:</span>
+                <div className="inline-flex items-center border border-zinc-200 rounded-xl bg-zinc-50 p-0.5">
+                  <button
+                    type="button"
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-zinc-700 font-medium transition ${
+                      quantity <= 1
+                        ? "text-zinc-300 cursor-not-allowed"
+                        : "hover:bg-white hover:shadow-xs active:scale-95 cursor-pointer"
+                    }`}
+                    onClick={() => setQuantity((n) => Math.max(1, n - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    −
+                  </button>
+                  <span className="w-9 text-center text-xs font-medium text-zinc-900">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-700 font-medium hover:bg-white hover:shadow-xs active:scale-95 transition cursor-pointer"
+                    onClick={() => {
+                      if (quantity >= 10) {
+                        toast.warn("Maximum 10 units allowed");
+                        return;
+                      }
+                      setQuantity((n) => n + 1);
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  className="w-full py-3.5 px-6 bg-zinc-900 hover:bg-black text-white text-sm font-medium rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                >
+                  <Zap className="w-4 h-4 text-zinc-300" />
+                  <span>Buy Now</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={addingToCart}
+                  className="w-full py-3.5 px-6 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-200 text-sm font-medium rounded-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <ShoppingCart className="w-4 h-4 text-zinc-700" />
+                  <span>{addingToCart ? "Adding..." : "Add to Cart"}</span>
+                </button>
+              </div>
+
+              {/* Delivery ETA Pill */}
+              <div className="bg-zinc-50 rounded-xl p-3.5 border border-zinc-200 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-zinc-200 flex items-center justify-center text-zinc-800 shrink-0">
+                  <Truck className="w-4 h-4" />
+                </div>
+                <div className="text-xs">
+                  <span className="font-medium text-zinc-900">
+                    Quickzy Express Delivery:{" "}
+                  </span>
+                  <span className="text-zinc-600">
+                    Estimated delivery in 3 days (
+                    <strong className="text-zinc-900 font-medium">
+                      {getEstimatedDeliveryDate()}
+                    </strong>
+                    )
+                  </span>
+                </div>
+              </div>
+
+              {/* Trust Badges */}
+              <div className="grid grid-cols-3 gap-3 pt-2 border-t border-zinc-100 text-center">
+                <div className="p-2 space-y-1">
+                  <ShieldCheck className="w-4 h-4 text-zinc-700 mx-auto" />
+                  <p className="text-[11px] font-medium text-zinc-900">100% Genuine</p>
+                  <p className="text-[10px] text-zinc-500">Verified authentic</p>
+                </div>
+                <div className="p-2 space-y-1 border-x border-zinc-100">
+                  <RotateCcw className="w-4 h-4 text-zinc-700 mx-auto" />
+                  <p className="text-[11px] font-medium text-zinc-900">7 Days Return</p>
+                  <p className="text-[10px] text-zinc-500">Easy replacement</p>
+                </div>
+                <div className="p-2 space-y-1">
+                  <Truck className="w-4 h-4 text-zinc-700 mx-auto" />
+                  <p className="text-[11px] font-medium text-zinc-900">Free Shipping</p>
+                  <p className="text-[10px] text-zinc-500">On all orders</p>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         </div>
 
-        {/* ---------- Related Products ---------- */}
+        {/* ================= RELATED PRODUCTS ================= */}
         {relatedProducts.length > 0 && (
-          <div className="mt-12">
-            <h3 className="text-2xl font-semibold mb-6">Related Products</h3>
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg sm:text-xl font-medium text-zinc-900">
+                Related Products
+              </h3>
+              <Link
+                to={`/product?category=${encodeURIComponent(product.category || "")}`}
+                className="text-xs font-medium text-zinc-600 hover:text-zinc-900 underline"
+              >
+                View all in {product.category} →
+              </Link>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {relatedProducts.map((p) => (
+              {relatedProducts.slice(0, 4).map((p) => (
                 <ProductCard key={p._id} product={p} />
               ))}
             </div>
           </div>
         )}
+
       </div>
 
-      {/* ---------- Modal ---------- */}
+      {/* ================= LIGHTBOX / IMAGE MODAL ================= */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center z-50 p-4"
           onClick={() => setIsModalOpen(false)}
         >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              showPrev();
-            }}
-            className="absolute left-6 text-white text-4xl hover:text-gray-400"
-          >
-            ‹
-          </button>
+          <div className="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute -top-12 right-0 p-2 text-zinc-300 hover:text-white bg-zinc-800/80 rounded-full transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-          <img
-            src={selectedImage}
-            alt="preview"
-            loading="lazy"
-            decoding="async"
-            className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
+            <img
+              src={selectedImage}
+              alt="preview"
+              loading="lazy"
+              className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl border border-zinc-800 bg-black"
+              onClick={(e) => e.stopPropagation()}
+            />
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              showNext();
-            }}
-            className="absolute right-6 text-white text-4xl hover:text-gray-400"
-          >
-            ›
-          </button>
-
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className="absolute top-6 right-8 text-4xl text-white hover:text-gray-400"
-          >
-            &times;
-          </button>
+            {imagesList.length > 1 && (
+              <div className="flex items-center gap-4 mt-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showPrev();
+                  }}
+                  className="p-2 text-zinc-200 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-full transition cursor-pointer"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-xs font-medium text-zinc-400">
+                  {imagesList.indexOf(selectedImage) + 1} / {imagesList.length}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showNext();
+                  }}
+                  className="p-2 text-zinc-200 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 rounded-full transition cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
+
     </div>
   );
 };

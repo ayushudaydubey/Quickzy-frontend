@@ -61,7 +61,11 @@ const UsersProductsStatus = () => {
         { status, incrementAttempt, note },
         { withCredentials: true }
       );
-      toast.success('Order updated');
+      if (res.data.email_sent) {
+        toast.success(`Order status updated & notification email sent to customer!`);
+      } else {
+        toast.success(res.data.message || 'Order status updated');
+      }
       // replace order in list
       setOrders((prev) => prev.map(o => (o._id === orderId ? res.data.order : o)));
     } catch (err) {
